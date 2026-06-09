@@ -42,7 +42,7 @@ class RecentActivityTable extends BaseWidget
             )
             ->columns([
                 TextColumn::make('activity_summary')
-                    ->label('Activity')
+                    ->label(__('app.activity'))
                     ->state(function (TicketHistory $record): string {
                         $ticketName = $record->ticket->name ?? 'Unknown ticket';
                         $trimmedName = strlen($ticketName) > 40 ? substr($ticketName, 0, 40) . '...' : $ticketName;
@@ -62,7 +62,7 @@ class RecentActivityTable extends BaseWidget
                     ->searchable(['users.name', 'tickets.name', 'tickets.uuid'])
                     ->weight('medium'),
                 TextColumn::make('status.name')
-                    ->label('Status')
+                    ->label(__('app.status'))
                     ->badge()
                     ->alignEnd()
                     ->color(fn (TicketHistory $record): string => match($record->status->name ?? '') {
@@ -106,7 +106,7 @@ class RecentActivityTable extends BaseWidget
                     }),
 
                 Filter::make('today')
-                    ->label('Today Only')
+                    ->label(__('app.today_only'))
                     ->query(fn ($query) => $query->whereDate('created_at', today()))
                     ->toggle(),
 
@@ -121,7 +121,7 @@ class RecentActivityTable extends BaseWidget
                     ->label('')
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->size('sm')
-                    ->tooltip('Open Ticket')
+                    ->tooltip(__('app.open_ticket'))
                     ->url(fn (TicketHistory $record): string => 
                         route('filament.admin.resources.tickets.view', $record->ticket)
                     )
@@ -133,8 +133,8 @@ class RecentActivityTable extends BaseWidget
             ->paginated([5, 25, 50])
             ->poll('30s')
             ->striped()
-            ->emptyStateHeading('No Activity Found')
-            ->emptyStateDescription('No ticket activities found for the selected period.')
+            ->emptyStateHeading(__('app.no_activity_heading'))
+            ->emptyStateDescription(__('app.no_activity_desc'))
             ->emptyStateIcon('heroicon-o-clock');
     }
 }

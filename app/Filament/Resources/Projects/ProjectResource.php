@@ -66,21 +66,21 @@ class ProjectResource extends Resource
     {
         return $schema
             ->components([
-                TextInput::make('name')
+                TextInput::make('name')->label(__('app.name'))
                     ->required()
                     ->maxLength(255),
-                RichEditor::make('description')
+                RichEditor::make('description')->label(__('app.description'))
                     ->columnSpanFull()
                     ->fileAttachmentsDisk('public')
                     ->fileAttachmentsDirectory('attachments')
                     ->fileAttachmentsAcceptedFileTypes(['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'video/mp4'])
                     ->fileAttachmentsVisibility('public'),
-                TextInput::make('ticket_prefix')
+                TextInput::make('ticket_prefix')->label(__('app.ticket_prefix_label'))
                     ->required()
                     ->maxLength(255),
                 ColorPicker::make('color')
-                    ->label('Project Color')
-                    ->helperText('Choose a color for the project card and badge')
+                    ->label(__('app.project_color'))
+                    ->helperText(__('app.project_color_help'))
                     ->nullable(),
                 DatePicker::make('start_date')
                     ->label(__('app.start_date'))
@@ -92,15 +92,15 @@ class ProjectResource extends Resource
                     ->displayFormat('d/m/Y')
                     ->afterOrEqual('start_date'),
                 Toggle::make('create_default_statuses')
-                    ->label('Use Default Ticket Statuses')
-                    ->helperText('Create standard Backlog, To Do, In Progress, Review, and Done statuses automatically')
+                    ->label(__('app.use_default_statuses'))
+                    ->helperText(__('app.default_statuses_help'))
                     ->default(true)
                     ->dehydrated(false)
                     ->visible(fn($livewire) => $livewire instanceof CreateProject),
 
                 Toggle::make('is_pinned')
-                    ->label('Pin Project')
-                    ->helperText('Pinned projects will appear in the dashboard timeline')
+                    ->label(__('app.pin_project'))
+                    ->helperText(__('app.pin_project_help'))
                     ->live()
                     ->afterStateUpdated(function ($state, $set) {
                         if ($state) {
@@ -114,7 +114,7 @@ class ProjectResource extends Resource
                         $component->state(!is_null($get('pinned_date')));
                     }),
                 DateTimePicker::make('pinned_date')
-                    ->label('Pinned Date')
+                    ->label(__('app.pinned_date'))
                     ->native(false)
                     ->displayFormat('d/m/Y H:i')
                     ->visible(fn($get) => $get('is_pinned'))
@@ -130,12 +130,12 @@ class ProjectResource extends Resource
                     ->label('')
                     ->width('40px')
                     ->default('#6B7280'),
-                TextColumn::make('name')
+                TextColumn::make('name')->label(__('app.name'))
                     ->searchable(),
-                TextColumn::make('ticket_prefix')
+                TextColumn::make('ticket_prefix')->label(__('app.ticket_prefix_label'))
                     ->searchable(),
                 TextColumn::make('progress_percentage')
-                    ->label('Progress')
+                    ->label(__('app.progress'))
                     ->getStateUsing(function (Project $record): string {
                         return $record->progress_percentage . '%';
                     })
@@ -148,14 +148,14 @@ class ProjectResource extends Resource
                                 ($record->progress_percentage >= 25 ? 'gray' : 'danger')))
                     )
                     ->sortable(),
-                TextColumn::make('start_date')
+                TextColumn::make('start_date')->label(__('app.start_date'))
                     ->date('d/m/Y')
                     ->sortable(),
-                TextColumn::make('end_date')
+                TextColumn::make('end_date')->label(__('app.end_date'))
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('remaining_days')
-                    ->label('Remaining Days')
+                    ->label(__('app.remaining_days'))
                     ->getStateUsing(function (Project $record): ?string {
                         if (!$record->end_date) {
                             return null;
@@ -171,7 +171,7 @@ class ProjectResource extends Resource
                             ($record->remaining_days <= 7 ? 'warning' : 'success'))
                     ),
                 ToggleColumn::make('is_pinned')
-                    ->label('Pinned')
+                    ->label(__('app.pinned'))
                     ->updateStateUsing(function ($record, $state) {
                         // Gunakan method pin/unpin yang sudah ada di model
                         if ($state) {
@@ -187,11 +187,11 @@ class ProjectResource extends Resource
                 TextColumn::make('tickets_count')
                     ->counts('tickets')
                     ->label(__('app.tickets')),
-                TextColumn::make('created_at')
+                TextColumn::make('created_at')->label(__('app.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
+                TextColumn::make('updated_at')->label(__('app.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

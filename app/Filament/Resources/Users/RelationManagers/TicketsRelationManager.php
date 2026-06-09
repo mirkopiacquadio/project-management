@@ -26,7 +26,7 @@ class TicketsRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                TextInput::make('name')
+                TextInput::make('name')->label(__('app.name'))
                     ->required()
                     ->maxLength(255),
             ]);
@@ -69,7 +69,7 @@ class TicketsRelationManager extends RelationManager
                     ->date()
                     ->sortable(),
 
-                TextColumn::make('created_at')
+                TextColumn::make('created_at')->label(__('app.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -87,8 +87,8 @@ class TicketsRelationManager extends RelationManager
 
                 Filter::make('due_date')
                     ->schema([
-                        DatePicker::make('due_from'),
-                        DatePicker::make('due_until'),
+                        DatePicker::make('due_from')->label(__('app.due_from')),
+                        DatePicker::make('due_until')->label(__('app.due_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

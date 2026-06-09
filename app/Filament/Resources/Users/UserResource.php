@@ -52,25 +52,25 @@ class UserResource extends Resource
     {
         return $schema
             ->components([
-                TextInput::make('name')
+                TextInput::make('name')->label(__('app.name'))
                     ->required()
                     ->maxLength(255),
-                TextInput::make('email')
+                TextInput::make('email')->label(__('app.email'))
                     ->email()
                     ->required()
                     ->unique(
                         ignoreRecord: true
                     )
                     ->maxLength(255),
-                DateTimePicker::make('email_verified_at'),
-                TextInput::make('password')
+                DateTimePicker::make('email_verified_at')->label(__('app.email_verified_at')),
+                TextInput::make('password')->label(__('app.password'))
                     ->password()
                     ->dehydrateStateUsing(fn ($state) => ! empty($state) ? Hash::make($state) : null
                     )
                     ->dehydrated(fn ($state) => ! empty($state))
                     ->required(fn (string $operation): bool => in_array($operation, ['create', 'attach.createOption']))
                     ->maxLength(255),
-                Select::make('roles')
+                Select::make('roles')->label(__('app.roles'))
                     ->relationship('roles', 'name')
                     ->multiple()
                     ->preload()
@@ -82,11 +82,11 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('name')->label(__('app.name'))
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('email')
+                TextColumn::make('email')->label(__('app.email'))
                     ->searchable()
                     ->sortable(),
 
@@ -106,7 +106,7 @@ class UserResource extends Resource
                 TextColumn::make('assigned_tickets_count')
                     ->label(__('app.total_assigned_tickets'))
                     ->counts('assignedTickets')
-                    ->tooltip('Number of tickets assigned to this user')
+                    ->tooltip(__('app.tickets_assigned_tooltip'))
                     ->sortable(),
 
                 TextColumn::make('created_tickets_count')
@@ -114,35 +114,35 @@ class UserResource extends Resource
                     ->getStateUsing(function (User $record): int {
                         return $record->createdTickets()->count();
                     })
-                    ->tooltip('Number of tickets created by this user')
+                    ->tooltip(__('app.tickets_created_tooltip'))
                     ->sortable(),
 
-                TextColumn::make('email_verified_at')
+                TextColumn::make('email_verified_at')->label(__('app.email_verified_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('created_at')
+                TextColumn::make('created_at')->label(__('app.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('updated_at')
+                TextColumn::make('updated_at')->label(__('app.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Filter::make('has_projects')
-                    ->label('Has Projects')
+                    ->label(__('app.has_projects'))
                     ->query(fn (Builder $query): Builder => $query->whereHas('projects')),
 
                 Filter::make('has_assigned_tickets')
-                    ->label('Has Assigned Tickets')
+                    ->label(__('app.has_assigned_tickets'))
                     ->query(fn (Builder $query): Builder => $query->whereHas('assignedTickets')),
 
                 Filter::make('has_created_tickets')
-                    ->label('Has Created Tickets')
+                    ->label(__('app.has_created_tickets'))
                     ->query(fn (Builder $query): Builder => $query->whereHas('createdTickets')),
 
                 // Filter by role
@@ -153,7 +153,7 @@ class UserResource extends Resource
                     ->preload(),
 
                 Filter::make('email_unverified')
-                    ->label('Email Unverified')
+                    ->label(__('app.email_unverified'))
                     ->query(fn (Builder $query): Builder => $query->whereNull('email_verified_at')),
             ])
             ->recordActions([
@@ -166,11 +166,11 @@ class UserResource extends Resource
 
                     // NEW: Bulk action to assign role
                     BulkAction::make('assignRole')
-                        ->label('Assign Role')
+                        ->label(__('app.assign_role'))
                         ->icon('heroicon-o-shield-check')
                         ->form([
                             Select::make('roles')
-                                ->label('Roles')
+                                ->label(__('app.roles'))
                                 ->relationship('roles', 'name')
                                 ->multiple()
                                 ->preload()
@@ -178,7 +178,7 @@ class UserResource extends Resource
                                 ->required(),
 
                             Radio::make('role_mode')
-                                ->label('Assignment Mode')
+                                ->label(__('app.assignment_mode'))
                                 ->options([
                                     'replace' => 'Replace existing roles',
                                     'add' => 'Add to existing roles',

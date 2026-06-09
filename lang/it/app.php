@@ -134,4 +134,187 @@ return [
     'total_projects' => 'Progetti Totali',
     'total_assigned_tickets' => 'Ticket Assegnati Totali',
     'tickets_created' => 'Ticket Creati',
+
+    // ---- i18n completo pannello ----
+    // Ticket / assegnatari
+    'select_assignees_help' => 'Seleziona uno o più utenti da assegnare a questo ticket. Solo i membri del progetto possono essere assegnati.',
+    'non_member_removed_body' => 'Alcuni utenti selezionati non sono membri di questo progetto e sono stati rimossi dagli assegnatari.',
+    'auto_assigned' => 'Assegnazione automatica',
+    'auto_assigned_body' => 'Nessun assegnatario valido trovato. Sei stato assegnato automaticamente a questo ticket.',
+    'ticket_created_body' => 'Il ticket è stato creato con successo.',
+    'ticket_updated_body' => 'Il ticket è stato aggiornato con successo.',
+    'delete_comment_confirm' => 'Sei sicuro di voler eliminare questo commento? L\'azione è irreversibile.',
+    'ticket_discussion' => 'Discussione su questo ticket',
+    'ticket_not_found' => 'Ticket non trovato',
+    'no_perm_move' => 'Non hai il permesso di spostare questo ticket.',
+    'no_perm_edit' => 'Non hai il permesso di modificare questo ticket.',
+    'permission_denied' => 'Permesso negato',
+
+    // Progetto
+    'project_color' => 'Colore progetto',
+    'project_color_help' => 'Scegli un colore per la card e il badge del progetto',
+    'use_default_statuses' => 'Usa stati ticket predefiniti',
+    'default_statuses_help' => 'Crea automaticamente gli stati standard Backlog, To Do, In Progress, Review e Done',
+    'pin_project' => 'Fissa progetto',
+    'pin_project_help' => 'I progetti fissati appariranno nella timeline della dashboard',
+    'pinned_date' => 'Data fissaggio',
+    'pinned_status' => 'Stato fissaggio',
+    'progress' => 'Avanzamento',
+    'remaining_days' => 'Giorni rimanenti',
+    'pinned' => 'Fissato',
+    'ticket_prefix_label' => 'Prefisso ticket',
+    'not_set' => 'Non impostato',
+    'tickets_count_label' => 'Numero ticket',
+
+    // Epiche / ordinamento
+    'sort_order' => 'Ordinamento',
+    'lower_numbers_first' => 'I numeri più bassi appaiono per primi',
+    'order' => 'Ordine',
+    'assign_to_epic' => 'Assegna a epica',
+    'assign_epic_help' => 'Seleziona un\'epica a cui assegnare i ticket selezionati. Lascia vuoto per rimuovere l\'assegnazione.',
+    'epic_assignment_updated' => 'Assegnazione epica aggiornata',
+
+    // Note
+    'note_date' => 'Data nota',
+    'note_help' => 'Scrivi qui il riepilogo della riunione o le note di progetto con formattazione avanzata.',
+    'recent_30_days' => 'Recenti (30 giorni)',
+    'add_note' => 'Aggiungi nota',
+    'no_notes_heading' => 'Ancora nessuna nota di progetto',
+    'no_notes_desc' => 'Inizia a documentare le riunioni e le note importanti del progetto.',
+
+    // Stati ticket
+    'status_color_help' => 'Seleziona un colore per questo stato',
+    'status_order_help' => 'Determina l\'ordine di visualizzazione nella bacheca (i valori più bassi appaiono per primi)',
+    'mark_completed_status' => 'Segna come stato "Completato"',
+    'one_completed_help' => 'Solo uno stato per progetto può essere segnato come completato',
+    'cannot_mark_completed' => 'Impossibile segnare come completato',
+    'completed' => 'Completato',
+    'status_updated' => 'Stato aggiornato',
+
+    // Membri / assegnazioni di massa
+    'remove' => 'Rimuovi',
+    'remove_selected' => 'Rimuovi selezionati',
+    'assign_users' => 'Assegna utenti',
+    'assignment_mode' => 'Modalità di assegnazione',
+    'users_assigned' => 'Utenti assegnati',
+    'update_priority' => 'Aggiorna priorità',
+    'assign_role' => 'Assegna ruolo',
+    'has_projects' => 'Ha progetti',
+    'has_assigned_tickets' => 'Ha ticket assegnati',
+    'has_created_tickets' => 'Ha ticket creati',
+    'email_unverified' => 'Email non verificata',
+    'tickets_assigned_tooltip' => 'Numero di ticket assegnati a questo utente',
+    'tickets_created_tooltip' => 'Numero di ticket creati da questo utente',
+    'back_to_ticket' => 'Torna al ticket',
+
+    // Dashboard esterna
+    'external_dashboard' => 'Dashboard esterna',
+    'external_dashboard_access' => 'Accesso dashboard esterna',
+    'external_share_desc' => 'Condividi queste credenziali con utenti esterni per accedere alla dashboard del progetto.',
+    'regenerate_access' => 'Rigenera accesso',
+    'regenerate_external_access' => 'Rigenera accesso esterno',
+    'regenerate_warning' => 'Verranno generate nuove credenziali e quelle attuali saranno invalidate.',
+    'external_regenerated' => 'Accesso esterno rigenerato con successo',
+
+    // Notifiche (risorsa)
+    'na' => 'N/D',
+    'mark_as_read' => 'Segna come letto',
+    'notification_marked_read' => 'Notifica segnata come letta',
+    'view_ticket' => 'Vedi ticket',
+    'mark_all_read' => 'Segna tutte come lette',
+    'all_notifications_read' => 'Tutte le notifiche segnate come lette',
+    'unread_only' => 'Solo non lette',
+
+    // Import / Export
+    'template_downloaded' => 'Template scaricato',
+    'export_to_excel' => 'Esporta in Excel',
+    'export_columns_desc' => 'Scegli quali colonne includere nell\'esportazione Excel',
+    'export_columns_section' => 'Seleziona colonne da esportare',
+    'columns' => 'Colonne',
+    'import_desc' => 'Carica un file Excel per importare i ticket in questo progetto. Puoi scaricare il template qui sotto.',
+    'import_select_project_desc' => 'Seleziona un progetto e carica un file Excel per importare i ticket. Dopo aver selezionato un progetto potrai scaricare il template qui sotto.',
+    'upload_excel_help' => 'Carica il file Excel con i dati dei ticket. Assicurati di usare il formato del template qui sopra.',
+    'import_error_prefix' => 'Si è verificato un errore durante l\'importazione: ',
+    'export_error_prefix' => 'Si è verificato un errore durante l\'esportazione: ',
+    'error' => 'Errore',
+    'select_project_first' => 'Seleziona prima un progetto.',
+    'export_failed' => 'Esportazione fallita',
+    'export_no_columns' => 'Seleziona almeno una colonna da esportare.',
+    'export_no_tickets' => 'Nessun ticket da esportare.',
+    'export_successful' => 'Esportazione completata',
+    'export_downloading' => 'Il tuo file Excel è in download.',
+
+    // Bacheca / filtri
+    'refresh_board' => 'Aggiorna bacheca',
+    'filter_by_user' => 'Filtra per utente',
+    'select_users_filter' => 'Seleziona utenti da filtrare',
+    'filter_applied' => 'Filtro applicato',
+    'filter_cleared' => 'Filtro rimosso',
+    'showing_all_tickets' => 'Visualizzazione di tutti i ticket',
+
+    // Pagine / errori
+    'project_not_found' => 'Progetto non trovato',
+    'project_not_found_body' => 'Il progetto selezionato non è stato trovato o non hai accesso.',
+    'data_refreshed' => 'Dati aggiornati',
+    'error_loading_page' => 'Errore nel caricamento della pagina',
+
+    // Attività recenti
+    'activity' => 'Attività',
+    'today_only' => 'Solo oggi',
+    'open_ticket' => 'Apri ticket',
+    'no_activity_heading' => 'Nessuna attività trovata',
+    'no_activity_desc' => 'Nessuna attività sui ticket nel periodo selezionato.',
+
+    // Commenti
+    'add_comment' => 'Aggiungi un commento',
+    'comment_placeholder' => 'Scrivi qui il tuo commento...',
+    'comment_added' => 'Commento aggiunto con successo',
+
+    // Sezioni (View/Form)
+    'ticket_information' => 'Informazioni ticket',
+    'status_assignment' => 'Stato e assegnazione',
+    'comments_section' => 'Commenti',
+    'metadata' => 'Metadati',
+    'status_history' => 'Cronologia stati',
+    'import_section' => 'Importa ticket da Excel',
+    'project_information' => 'Informazioni progetto',
+    'project_statistics' => 'Statistiche progetto',
+    'timestamps' => 'Date',
+
+    // Statistiche dashboard
+    'stat_active_projects' => 'Progetti attivi nel sistema',
+    'stat_tickets_all' => 'Ticket su tutti i progetti',
+    'stat_tickets_assigned' => 'Ticket assegnati a te',
+    'stat_registered_users' => 'Utenti registrati',
+    'stat_projects_member' => 'Progetti di cui sei membro',
+    'stat_tickets_created' => 'Ticket che hai creato',
+    'stat_total_tickets' => 'Ticket totali nei tuoi progetti',
+    'stat_completed' => 'I tuoi ticket completati',
+    'stat_created_in_projects' => 'Creati nei tuoi progetti',
+    'stat_past_due' => 'I tuoi ticket scaduti',
+    'stat_people' => 'Persone nei tuoi progetti',
+
+    // Heading widget / grafici
+    'chart_tickets_per_project' => 'Numero di ticket per progetto',
+    'chart_user_stats' => 'Statistiche utenti',
+    'overview' => 'Panoramica',
+    'chart_monthly_trend' => 'Andamento mensile creazione ticket',
+
+    // Etichette campi (auto-label)
+    'end_date' => 'Data Fine',
+    'color' => 'Colore',
+    'uuid' => 'ID',
+    'title' => 'Titolo',
+    'comment' => 'Commento',
+    'content' => 'Contenuto',
+    'message_field' => 'Messaggio',
+    'team' => 'Team',
+    'guard_name' => 'Guard',
+    'email_verified_at' => 'Email verificata il',
+    'due_from' => 'Scadenza da',
+    'due_until' => 'Scadenza fino a',
+    'read_status' => 'Stato lettura',
+    'statuses_count' => 'Stati',
+    'permissions_count' => 'Permessi',
+    'assigned_tickets_count' => 'Ticket assegnati',
 ];

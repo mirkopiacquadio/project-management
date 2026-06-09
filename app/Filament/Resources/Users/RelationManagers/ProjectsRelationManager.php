@@ -23,7 +23,7 @@ class ProjectsRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                TextInput::make('name')
+                TextInput::make('name')->label(__('app.name'))
                     ->required()
                     ->maxLength(255),
             ]);
@@ -45,7 +45,7 @@ class ProjectsRelationManager extends RelationManager
                     ->searchable(),
 
                 TextColumn::make('ticket_prefix')
-                    ->label('Ticket Prefix')
+                    ->label(__('app.ticket_prefix_label'))
                     ->searchable()
                     ->sortable(),
 
@@ -59,7 +59,7 @@ class ProjectsRelationManager extends RelationManager
                     ->counts('members')
                     ->sortable(),
 
-                TextColumn::make('created_at')
+                TextColumn::make('created_at')->label(__('app.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

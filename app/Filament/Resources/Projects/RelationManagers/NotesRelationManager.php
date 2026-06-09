@@ -48,17 +48,17 @@ class NotesRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                TextInput::make('title')
+                TextInput::make('title')->label(__('app.title'))
                     ->required()
                     ->maxLength(255)
                     ->columnSpanFull(),
                 
                 DatePicker::make('note_date')
-                    ->label('Note Date')
+                    ->label(__('app.note_date'))
                     ->default(now())
                     ->required(),
                 
-                RichEditor::make('content')
+                RichEditor::make('content')->label(__('app.content'))
                     ->required()
                     ->columnSpanFull()
                     ->fileAttachmentsDisk('public')
@@ -80,7 +80,7 @@ class NotesRelationManager extends RelationManager
                         'underline',
                         'undo',
                     ])
-                    ->helperText('Write your meeting summary or project notes here with rich formatting.'),
+                    ->helperText(__('app.note_help')),
                 
                 Hidden::make('created_by')
                     ->default(auth()->id()),
@@ -92,12 +92,12 @@ class NotesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('title')
             ->columns([
-                TextColumn::make('title')
+                TextColumn::make('title')->label(__('app.title'))
                     ->searchable()
                     ->sortable()
                     ->weight(FontWeight::Medium),
                 
-                TextColumn::make('note_date')
+                TextColumn::make('note_date')->label(__('app.note_date'))
                     ->date('M d, Y')
                     ->sortable(),
                 
@@ -105,7 +105,7 @@ class NotesRelationManager extends RelationManager
                     ->label(__('app.created_by'))
                     ->sortable(),
                 
-                TextColumn::make('created_at')
+                TextColumn::make('created_at')->label(__('app.created_at'))
                     ->dateTime('M d, Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -113,12 +113,12 @@ class NotesRelationManager extends RelationManager
             ->filters([
                 Filter::make('recent')
                     ->query(fn ($query) => $query->where('created_at', '>=', now()->subDays(30)))
-                    ->label('Recent (30 days)'),
+                    ->label(__('app.recent_30_days')),
             ])
             ->headerActions([
                 CreateAction::make()
                     ->icon('heroicon-o-plus')
-                    ->label('Add Note')
+                    ->label(__('app.add_note'))
                     ->modalWidth('2xl')
                     ->closeModalByClickingAway(false)
                     ,
@@ -136,8 +136,8 @@ class NotesRelationManager extends RelationManager
                 ]),
             ])
             ->defaultSort('note_date', 'desc')
-            ->emptyStateHeading('No project notes yet')
-            ->emptyStateDescription('Start documenting your project meetings and important notes.')
+            ->emptyStateHeading(__('app.no_notes_heading'))
+            ->emptyStateDescription(__('app.no_notes_desc'))
             ->emptyStateIcon('heroicon-o-document-text');
     }
 }

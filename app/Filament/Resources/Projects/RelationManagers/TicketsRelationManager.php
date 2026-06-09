@@ -107,7 +107,7 @@ class TicketsRelationManager extends RelationManager
                         
                         return $isCurrentUserMember ? [auth()->id()] : [];
                     })
-                    ->helperText('Select multiple users to assign this ticket to. Only project members can be assigned.'),
+                    ->helperText(__('app.select_assignees_help')),
                 
                 DatePicker::make('start_date')
                     ->label(__('app.start_date'))
@@ -118,7 +118,7 @@ class TicketsRelationManager extends RelationManager
                     ->nullable()
                     ->afterOrEqual('start_date'),
                 
-                RichEditor::make('description')
+                RichEditor::make('description')->label(__('app.description'))
                     ->columnSpanFull()
                     ->fileAttachmentsDisk('public')
                     ->fileAttachmentsDirectory('attachments')
@@ -145,11 +145,11 @@ class TicketsRelationManager extends RelationManager
                     ->sortable()
                     ->copyable(),
 
-                TextColumn::make('name')
+                TextColumn::make('name')->label(__('app.name'))
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('status.name')
+                TextColumn::make('status.name')->label(__('app.status'))
                     ->badge()
                     ->color(fn ($record) => match ($record->status?->name) {
                         'To Do' => 'warning',
@@ -190,7 +190,7 @@ class TicketsRelationManager extends RelationManager
                     ->date()
                     ->sortable(),
                 
-                TextColumn::make('created_at')
+                TextColumn::make('created_at')->label(__('app.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -246,8 +246,8 @@ class TicketsRelationManager extends RelationManager
                     ->icon('heroicon-m-arrow-up-tray')
                     ->color('success')
                     ->schema([
-                        Section::make('Import Tickets from Excel')
-                            ->description('Upload an Excel file to import tickets to this project. You can download the template below.')
+                        Section::make(__('app.import_section'))
+                            ->description(__('app.import_desc'))
                             ->schema([
                                 Actions::make([
                                     Action::make('download_template')
@@ -267,7 +267,7 @@ class TicketsRelationManager extends RelationManager
                                 
                                 FileUpload::make('excel_file')
                                     ->label(__('app.excel_file'))
-                                    ->helperText('Upload the Excel file with ticket data. Make sure to use the template format above.')
+                                    ->helperText(__('app.upload_excel_help'))
                                     ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'])
                                     ->maxSize(5120) // 5MB
                                     ->required()
@@ -350,7 +350,7 @@ class TicketsRelationManager extends RelationManager
                             
                             Notification::make()
                                 ->title(__('app.import_error'))
-                                ->body('An error occurred during import: ' . $e->getMessage())
+                                ->body(__('app.import_error_prefix') . $e->getMessage())
                                 ->danger()
                                 ->send();
                         }
@@ -388,14 +388,14 @@ class TicketsRelationManager extends RelationManager
                             
                             Notification::make()
                                 ->success()
-                                ->title('Status updated')
+                                ->title(__('app.status_updated'))
                                 ->body(count($records) . ' tickets have been updated.')
                                 ->send();
                         }),
                     
                     // NEW: Bulk assign users
                     BulkAction::make('assignUsers')
-                        ->label('Assign Users')
+                        ->label(__('app.assign_users'))
                         ->icon('heroicon-o-user-plus')
                         ->form([
                             Select::make('assignees')
@@ -412,7 +412,7 @@ class TicketsRelationManager extends RelationManager
                                 ->required(),
                             
                             Radio::make('assignment_mode')
-                                ->label('Assignment Mode')
+                                ->label(__('app.assignment_mode'))
                                 ->options([
                                     'replace' => 'Replace existing assignees',
                                     'add' => 'Add to existing assignees',
@@ -431,12 +431,12 @@ class TicketsRelationManager extends RelationManager
                             
                             Notification::make()
                                 ->success()
-                                ->title('Users assigned')
+                                ->title(__('app.users_assigned'))
                                 ->body(count($records) . ' tickets have been updated with new assignees.')
                                 ->send();
                         }),
                     BulkAction::make('updatePriority')
-                        ->label('Update Priority')
+                        ->label(__('app.update_priority'))
                         ->icon('heroicon-o-flag')
                         ->form([
                             Select::make('priority_id')
@@ -453,7 +453,7 @@ class TicketsRelationManager extends RelationManager
                         }),
                     
                     BulkAction::make('assignToEpic')
-                        ->label('Assign to Epic')
+                        ->label(__('app.assign_to_epic'))
                         ->icon('heroicon-o-bookmark')
                         ->form([
                             Select::make('epic_id')
@@ -467,7 +467,7 @@ class TicketsRelationManager extends RelationManager
                                 ->searchable()
                                 ->preload()
                                 ->nullable()
-                                ->helperText('Select an epic to assign the selected tickets to. Leave empty to remove epic assignment.'),
+                                ->helperText(__('app.assign_epic_help')),
                         ])
                         ->action(function (array $data, Collection $records) {
                             foreach ($records as $record) {
@@ -482,7 +482,7 @@ class TicketsRelationManager extends RelationManager
                             
                             Notification::make()
                                 ->success()
-                                ->title('Epic assignment updated')
+                                ->title(__('app.epic_assignment_updated'))
                                 ->body(count($records) . ' tickets have been assigned to: ' . $epicName)
                                 ->send();
                         }),

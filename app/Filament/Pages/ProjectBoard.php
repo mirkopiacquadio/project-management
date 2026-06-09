@@ -259,8 +259,8 @@ class ProjectBoard extends Page
         if ($ticket && $ticket->project_id === $this->selectedProject?->id) {
             if (! $this->canManageTicket($ticket)) {
                 Notification::make()
-                    ->title('Permission Denied')
-                    ->body('You do not have permission to move this ticket.')
+                    ->title(__('app.permission_denied'))
+                    ->body(__('app.no_perm_move'))
                     ->danger()
                     ->send();
 
@@ -276,7 +276,7 @@ class ProjectBoard extends Page
             $this->dispatch('ticket-updated');
 
             Notification::make()
-                ->title('Ticket Updated')
+                ->title(__('app.ticket_updated'))
                 ->success()
                 ->send();
         }
@@ -295,7 +295,7 @@ class ProjectBoard extends Page
 
         if (! $ticket) {
             Notification::make()
-                ->title('Ticket Not Found')
+                ->title(__('app.ticket_not_found'))
                 ->danger()
                 ->send();
 
@@ -317,8 +317,8 @@ class ProjectBoard extends Page
 
         if (! $this->canEditTicket($ticket)) {
             Notification::make()
-                ->title('Permission Denied')
-                ->body('You do not have permission to edit this ticket.')
+                ->title(__('app.permission_denied'))
+                ->body(__('app.no_perm_edit'))
                 ->danger()
                 ->send();
 
@@ -366,14 +366,14 @@ class ProjectBoard extends Page
                     $schema->model($record)->saveRelationships();
 
                     Notification::make()
-                        ->title('Ticket Created')
-                        ->body('The ticket has been created successfully.')
+                        ->title(__('app.ticket_created'))
+                        ->body(__('app.ticket_created_body'))
                         ->success()
                         ->send();
                 }),
 
             Action::make('refresh_board')
-                ->label('Refresh Board')
+                ->label(__('app.refresh_board'))
                 ->icon('heroicon-m-arrow-path')
                 ->action('refreshBoard')
                 ->color('warning'),
@@ -381,12 +381,12 @@ class ProjectBoard extends Page
                 ->visible(fn () => $this->selectedProject !== null && auth()->user()->hasRole(['super_admin'])),
 
             Action::make('filter_users')
-                ->label('Filter by User')
+                ->label(__('app.filter_by_user'))
                 ->icon('heroicon-m-user-group')
                 ->visible(fn () => $this->selectedProject !== null && $this->projectUsers->isNotEmpty())
                 ->schema([
                     CheckboxList::make('selectedUserIds')
-                        ->label('Select Users to Filter')
+                        ->label(__('app.select_users_filter'))
                         ->options(fn () => $this->projectUsers->pluck('name', 'id')->toArray())
                         ->columns(2)
                         ->searchable()
@@ -399,14 +399,14 @@ class ProjectBoard extends Page
                     $userCount = count($this->selectedUserIds);
                     if ($userCount > 0) {
                         Notification::make()
-                            ->title('Filter Applied')
+                            ->title(__('app.filter_applied'))
                             ->body("Showing tickets for {$userCount} selected user(s)")
                             ->success()
                             ->send();
                     } else {
                         Notification::make()
-                            ->title('Filter Cleared')
-                            ->body('Showing all tickets')
+                            ->title(__('app.filter_cleared'))
+                            ->body(__('app.showing_all_tickets'))
                             ->info()
                             ->send();
                     }
@@ -472,8 +472,8 @@ class ProjectBoard extends Page
     {
         if (empty($selectedColumns)) {
             Notification::make()
-                ->title('Export Failed')
-                ->body('Please select at least one column to export.')
+                ->title(__('app.export_failed'))
+                ->body(__('app.export_no_columns'))
                 ->danger()
                 ->send();
 
@@ -500,8 +500,8 @@ class ProjectBoard extends Page
 
         if ($tickets->isEmpty()) {
             Notification::make()
-                ->title('Export Failed')
-                ->body('No tickets found to export.')
+                ->title(__('app.export_failed'))
+                ->body(__('app.export_no_tickets'))
                 ->warning()
                 ->send();
 
@@ -531,15 +531,15 @@ class ProjectBoard extends Page
             ");
 
             Notification::make()
-                ->title('Export Successful')
-                ->body('Your Excel file is being downloaded.')
+                ->title(__('app.export_successful'))
+                ->body(__('app.export_downloading'))
                 ->success()
                 ->send();
 
         } catch (Exception $e) {
             Notification::make()
-                ->title('Export Failed')
-                ->body('An error occurred while exporting: '.$e->getMessage())
+                ->title(__('app.export_failed'))
+                ->body(__('app.export_error_prefix').$e->getMessage())
                 ->danger()
                 ->send();
         }

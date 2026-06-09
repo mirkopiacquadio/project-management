@@ -44,7 +44,7 @@ class DownloadTicketTemplateAction
                 $filename = preg_replace('/[^A-Za-z0-9\\-_.]/', '', $filename);
                 
                 Notification::make()
-                    ->title('Template Downloaded')
+                    ->title(__('app.template_downloaded'))
                     ->body("Import template for project '{$project->name}' has been downloaded.")
                     ->success()
                     ->send();

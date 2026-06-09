@@ -30,7 +30,7 @@ class TicketCommentResource extends Resource
     {
         return $schema
             ->components([
-                RichEditor::make('comment')
+                RichEditor::make('comment')->label(__('app.comment'))
                     ->required()
                     ->columnSpanFull()
                     ->fileAttachmentsDisk('public')
@@ -43,17 +43,17 @@ class TicketCommentResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('ticket.name')
+                TextColumn::make('ticket.name')->label(__('app.ticket'))
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('user.name')
+                TextColumn::make('user.name')->label(__('app.user'))
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('created_at')
+                TextColumn::make('created_at')->label(__('app.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
+                TextColumn::make('updated_at')->label(__('app.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

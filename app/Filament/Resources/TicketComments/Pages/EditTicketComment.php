@@ -17,7 +17,7 @@ class EditTicketComment extends EditRecord
     {
         return [
             Action::make('backToTicket')
-                ->label('Back to Ticket')
+                ->label(__('app.back_to_ticket'))
                 ->color('success')
                 ->url(fn () => route('filament.admin.resources.tickets.view', ['record' => $this->record->ticket_id]))
                 ->icon('heroicon-o-arrow-left'),

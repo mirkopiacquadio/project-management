@@ -98,7 +98,7 @@ class RoleResource extends Resource
                     ->badge()
                     ->color('warning')
                     ->label(__('filament-shield::filament-shield.column.guard_name')),
-                TextColumn::make('team.name')
+                TextColumn::make('team.name')->label(__('app.team'))
                     ->default('Global')
                     ->badge()
                     ->color(fn (mixed $state): string => str($state)->contains('Global') ? 'gray' : 'primary')

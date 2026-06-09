@@ -35,20 +35,20 @@ class TicketStatusesRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                TextInput::make('name')
+                TextInput::make('name')->label(__('app.name'))
                     ->required()
                     ->maxLength(255),
-                ColorPicker::make('color')
+                ColorPicker::make('color')->label(__('app.color'))
                     ->required()
                     ->default('#3490dc')
-                    ->helperText('Select a color for this status'),
-                TextInput::make('sort_order')
+                    ->helperText(__('app.status_color_help')),
+                TextInput::make('sort_order')->label(__('app.sort_order'))
                     ->numeric()
                     ->default(0)
-                    ->helperText('Determines display order in the project board (lower values appear first)'),
+                    ->helperText(__('app.status_order_help')),
                 Toggle::make('is_completed')
-                    ->label('Mark as Completed Status')
-                    ->helperText('Only one status per project can be marked as completed')
+                    ->label(__('app.mark_completed_status'))
+                    ->helperText(__('app.one_completed_help'))
                     ->default(false)
                     ->reactive()
                     ->afterStateUpdated(function ($state, $get, $set, $record) {
@@ -64,7 +64,7 @@ class TicketStatusesRelationManager extends RelationManager
                                 $set('is_completed', false);
                                 Notification::make()
                                     ->warning()
-                                    ->title('Cannot mark as completed')
+                                    ->title(__('app.cannot_mark_completed'))
                                     ->body("Status '{$existingCompleted->name}' is already marked as completed for this project. Only one status can be marked as completed.")
                                     ->send();
                             }
@@ -78,11 +78,11 @@ class TicketStatusesRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('name'),
-                ColorColumn::make('color'),
-                TextColumn::make('sort_order'),
+                TextColumn::make('name')->label(__('app.name')),
+                ColorColumn::make('color')->label(__('app.color')),
+                TextColumn::make('sort_order')->label(__('app.sort_order')),
                 IconColumn::make('is_completed')
-                    ->label('Completed')
+                    ->label(__('app.completed'))
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle')
@@ -111,7 +111,7 @@ class TicketStatusesRelationManager extends RelationManager
                                 $data['is_completed'] = false;
                                 Notification::make()
                                     ->warning()
-                                    ->title('Cannot mark as completed')
+                                    ->title(__('app.cannot_mark_completed'))
                                     ->body("Status '{$existingCompleted->name}' is already marked as completed for this project.")
                                     ->send();
                             }
@@ -135,7 +135,7 @@ class TicketStatusesRelationManager extends RelationManager
                                 $data['is_completed'] = false;
                                 Notification::make()
                                     ->warning()
-                                    ->title('Cannot mark as completed')
+                                    ->title(__('app.cannot_mark_completed'))
                                     ->body("Status '{$existingCompleted->name}' is already marked as completed for this project.")
                                     ->send();
                             }

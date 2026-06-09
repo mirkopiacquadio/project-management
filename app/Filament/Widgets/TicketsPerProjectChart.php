@@ -12,7 +12,10 @@ class TicketsPerProjectChart extends ChartWidget
 {
     use HasWidgetShield;
     
-    protected ?string $heading = 'Number of tickets per project';
+    public function getHeading(): ?string
+    {
+        return __('app.chart_tickets_per_project');
+    }
     
     protected static ?int $sort = 2;
     

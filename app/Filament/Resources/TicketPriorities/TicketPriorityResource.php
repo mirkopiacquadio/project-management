@@ -58,11 +58,11 @@ class TicketPriorityResource extends Resource
     {
         return $schema
             ->components([
-                TextInput::make('name')
+                TextInput::make('name')->label(__('app.name'))
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
-                ColorPicker::make('color')
+                ColorPicker::make('color')->label(__('app.color'))
                     ->required()
                     ->default('#6B7280'),
             ]);
@@ -72,20 +72,20 @@ class TicketPriorityResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('name')->label(__('app.name'))
                     ->searchable()
                     ->sortable(),
-                ColorColumn::make('color')
+                ColorColumn::make('color')->label(__('app.color'))
                     ->sortable(),
                 TextColumn::make('tickets_count')
                     ->counts('tickets')
-                    ->label('Tickets Count')
+                    ->label(__('app.tickets_count_label'))
                     ->sortable(),
-                TextColumn::make('created_at')
+                TextColumn::make('created_at')->label(__('app.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
+                TextColumn::make('updated_at')->label(__('app.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -81,7 +81,7 @@ class TicketTimeline extends Page implements HasForms
             Log::error('Error in TicketTimeline mount: ' . $e->getMessage());
 
             Notification::make()
-                ->title('Error loading page')
+                ->title(__('app.error_loading_page'))
                 ->danger()
                 ->send();
         }
@@ -126,7 +126,7 @@ class TicketTimeline extends Page implements HasForms
             $this->js("Livewire.navigate('{$url}')");
         } else {
             Notification::make()
-                ->title('Project Not Found')
+                ->title(__('app.project_not_found'))
                 ->danger()
                 ->send();
 

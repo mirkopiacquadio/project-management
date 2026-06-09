@@ -21,11 +21,11 @@ class EditProject extends EditRecord
         return [
             DeleteAction::make(),
             Action::make('external_access')
-                ->label('External Dashboard')
+                ->label(__('app.external_dashboard'))
                 ->icon('heroicon-o-globe-alt')
                 ->color('info')
-                ->modalHeading('External Dashboard Access')
-                ->modalDescription('Share these credentials with external users to access the project dashboard.')
+                ->modalHeading(__('app.external_dashboard_access'))
+                ->modalDescription(__('app.external_share_desc'))
                 ->modalContent(function () {
                     $record = $this->record;
                     $externalAccess = $record->externalAccess;
@@ -47,12 +47,12 @@ class EditProject extends EditRecord
                 ->modalCancelActionLabel('Close')
                 ->modalFooterActions([
                     Action::make('regenerate_external_access')
-                        ->label('Regenerate Access')
+                        ->label(__('app.regenerate_access'))
                         ->icon('heroicon-o-arrow-path')
                         ->color('warning')
                         ->requiresConfirmation()
-                        ->modalHeading('Regenerate External Access')
-                        ->modalDescription('This will generate new credentials and invalidate the current ones.')
+                        ->modalHeading(__('app.regenerate_external_access'))
+                        ->modalDescription(__('app.regenerate_warning'))
                         ->action(function () {
                             $record = $this->record;
                             $record->externalAccess()?->delete();
@@ -65,7 +65,7 @@ class EditProject extends EditRecord
                             ]);
                             
                             Notification::make()
-                                ->title('External access regenerated successfully')
+                                ->title(__('app.external_regenerated'))
                                 ->success()
                                 ->send();
                         })

@@ -38,15 +38,15 @@ class EpicsRelationManager extends RelationManager
                 TextInput::make('sort_order')
                     ->numeric()
                     ->default(0)
-                    ->label('Sort Order')
-                    ->helperText('Lower numbers appear first'),
+                    ->label(__('app.sort_order'))
+                    ->helperText(__('app.lower_numbers_first')),
                 DatePicker::make('start_date')
                     ->label(__('app.start_date'))
                     ->nullable(),
                 DatePicker::make('end_date')
                     ->label(__('app.due_date'))
                     ->nullable(),
-                RichEditor::make('description')
+                RichEditor::make('description')->label(__('app.description'))
                     ->columnSpanFull()
                     ->fileAttachmentsDisk('public')
                     ->fileAttachmentsDirectory('attachments')
@@ -61,21 +61,21 @@ class EpicsRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('sort_order')
-                    ->label('Order')
+                    ->label(__('app.order'))
                     ->sortable(),
-                TextColumn::make('name')
+                TextColumn::make('name')->label(__('app.name'))
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('start_date')
+                TextColumn::make('start_date')->label(__('app.start_date'))
                     ->date()
                     ->sortable(),
-                TextColumn::make('end_date')
+                TextColumn::make('end_date')->label(__('app.end_date'))
                     ->date()
                     ->sortable(),
                 TextColumn::make('tickets_count')
                     ->counts('tickets')
                     ->label(__('app.tickets')),
-                TextColumn::make('created_at')
+                TextColumn::make('created_at')->label(__('app.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

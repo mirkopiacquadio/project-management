@@ -40,10 +40,10 @@ class MembersRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('name')->label(__('app.name'))
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('email')
+                TextColumn::make('email')->label(__('app.email'))
                     ->searchable()
                     ->sortable(),
             ])
@@ -81,7 +81,7 @@ class MembersRelationManager extends RelationManager
             ])
             ->recordActions([
                 DetachAction::make()
-                    ->label('Remove')
+                    ->label(__('app.remove'))
                     ->after(function (Model $record) {
                         $project = $this->getOwnerRecord();
                         $user = User::find($record->id);
@@ -95,7 +95,7 @@ class MembersRelationManager extends RelationManager
             ->toolbarActions([
                 BulkActionGroup::make([
                     DetachBulkAction::make()
-                        ->label('Remove Selected'),
+                        ->label(__('app.remove_selected')),
                 ]),
             ]);
     }

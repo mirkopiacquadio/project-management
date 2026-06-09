@@ -28,12 +28,12 @@ class ViewProject extends ViewRecord
                 ->color('info')
                 ->url(fn () => ProjectBoard::getUrl(['project_id' => $this->record->id])),
             Action::make('external_access')
-                ->label('External Dashboard')
+                ->label(__('app.external_dashboard'))
                 ->icon('heroicon-o-globe-alt')
                 ->color('success')
                 ->visible(fn () => auth()->user()->hasRole('super_admin'))
-                ->modalHeading('External Dashboard Access')
-                ->modalDescription('Share these credentials with external users to access the project dashboard.')
+                ->modalHeading(__('app.external_dashboard_access'))
+                ->modalDescription(__('app.external_share_desc'))
                 ->modalContent(function () {
                     $record = $this->record;
                     $externalAccess = $record->externalAccess;
@@ -60,7 +60,7 @@ class ViewProject extends ViewRecord
     {
         return $schema
             ->schema([
-                Section::make('Project Information')
+                Section::make(__('app.project_information'))
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -69,7 +69,7 @@ class ViewProject extends ViewRecord
                                     ->weight(FontWeight::Bold)
                                     ->size('lg'),
                                 TextEntry::make('ticket_prefix')
-                                    ->label('Ticket Prefix')
+                                    ->label(__('app.ticket_prefix_label'))
                                     ->badge()
                                     ->color('primary'),
                             ]),
@@ -82,16 +82,16 @@ class ViewProject extends ViewRecord
                                 TextEntry::make('start_date')
                                     ->label(__('app.start_date'))
                                     ->date('d/m/Y')
-                                    ->placeholder('Not set'),
+                                    ->placeholder(__('app.not_set')),
                                 TextEntry::make('end_date')
                                     ->label(__('app.due_date'))
                                     ->date('d/m/Y')
-                                    ->placeholder('Not set'),
+                                    ->placeholder(__('app.not_set')),
                             ]),
                         Grid::make(2)
                             ->schema([
                                 TextEntry::make('remaining_days')
-                                    ->label('Remaining Days')
+                                    ->label(__('app.remaining_days'))
                                     ->getStateUsing(function ($record): ?string {
                                         if (!$record->end_date) {
                                             return 'Not set';
@@ -105,7 +105,7 @@ class ViewProject extends ViewRecord
                                         ($record->remaining_days <= 7 ? 'warning' : 'success'))
                                     ),
                                 TextEntry::make('pinned_date')
-                                    ->label('Pinned Status')
+                                    ->label(__('app.pinned_status'))
                                     ->getStateUsing(function ($record): string {
                                         return $record->pinned_date ? 'Pinned on ' . $record->pinned_date->format('d/m/Y H:i') : 'Not pinned';
                                     })
@@ -114,7 +114,7 @@ class ViewProject extends ViewRecord
                             ]),
                     ]),
                 
-                Section::make('Project Statistics')
+                Section::make(__('app.project_statistics'))
                     ->schema([
                         Grid::make(4)
                             ->schema([
@@ -141,7 +141,7 @@ class ViewProject extends ViewRecord
                             ]),
                     ]),
                     
-                Section::make('Timestamps')
+                Section::make(__('app.timestamps'))
                     ->schema([
                         Grid::make(2)
                             ->schema([

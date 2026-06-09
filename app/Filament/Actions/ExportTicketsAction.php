@@ -15,15 +15,15 @@ class ExportTicketsAction
     public static function make(): Action
     {
         return Action::make('export_tickets')
-            ->label('Export to Excel')
+            ->label(__('app.export_to_excel'))
             ->icon('heroicon-m-arrow-down-tray')
             ->color('success')
             ->schema([
-                Section::make('Select Columns to Export')
-                    ->description('Choose which columns you want to include in the Excel export')
+                Section::make(__('app.export_columns_section'))
+                    ->description(__('app.export_columns_desc'))
                     ->schema([
                         CheckboxList::make('columns')
-                            ->label('Columns')
+                            ->label(__('app.columns'))
                             ->options([
                                 'uuid' => 'Ticket ID',
                                 'name' => 'Title',

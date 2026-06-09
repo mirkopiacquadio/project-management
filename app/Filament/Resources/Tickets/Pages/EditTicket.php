@@ -50,7 +50,7 @@ class EditTicket extends EditRecord
                     Notification::make()
                         ->warning()
                         ->title(__('app.some_assignees_removed'))
-                        ->body('Some selected users are not members of this project and have been removed from assignees.')
+                        ->body(__('app.non_member_removed_body'))
                         ->send();
                 }
             }
@@ -72,6 +72,6 @@ class EditTicket extends EditRecord
         return Notification::make()
             ->success()
             ->title(__('app.ticket_updated'))
-            ->body('The ticket has been updated successfully.');
+            ->body(__('app.ticket_updated_body'));
     }
 }

@@ -17,7 +17,10 @@ class StatsOverview extends BaseWidget
 
     protected ?string $pollingInterval = '30s';
 
-    protected ?string $heading = 'Overview';
+    protected function getHeading(): ?string
+    {
+        return __('app.overview');
+    }
 
     protected function getStats(): array
     {
@@ -43,22 +46,22 @@ class StatsOverview extends BaseWidget
 
         return [
             Stat::make(__('app.total_projects'), $totalProjects)
-                ->description('Active projects in the system')
+                ->description(__('app.stat_active_projects'))
                 ->descriptionIcon('heroicon-m-rectangle-stack')
                 ->color('primary'),
 
             Stat::make('Total Tickets', $totalTickets)
-                ->description('Tickets across all projects')
+                ->description(__('app.stat_tickets_all'))
                 ->descriptionIcon('heroicon-m-ticket')
                 ->color('success'),
 
             Stat::make(__('app.total_assigned_tickets'), $myTickets)
-                ->description('Tickets assigned to you')
+                ->description(__('app.stat_tickets_assigned'))
                 ->descriptionIcon('heroicon-m-user-circle')
                 ->color('info'),
 
             Stat::make('Team Members', $usersCount)
-                ->description('Registered users')
+                ->description(__('app.stat_registered_users'))
                 ->descriptionIcon('heroicon-m-users')
                 ->color('gray'),
         ];
@@ -107,42 +110,42 @@ class StatsOverview extends BaseWidget
 
         return [
             Stat::make('My Projects', $myProjects)
-                ->description('Projects you are member of')
+                ->description(__('app.stat_projects_member'))
                 ->descriptionIcon('heroicon-m-rectangle-stack')
                 ->color('primary'),
 
             Stat::make('My Assigned Tickets', $myAssignedTickets)
-                ->description('Tickets assigned to you')
+                ->description(__('app.stat_tickets_assigned'))
                 ->descriptionIcon('heroicon-m-user-circle')
                 ->color($myAssignedTickets > 10 ? 'danger' : ($myAssignedTickets > 5 ? 'warning' : 'success')),
 
             Stat::make('My Created Tickets', $myCreatedTickets)
-                ->description('Tickets you created')
+                ->description(__('app.stat_tickets_created'))
                 ->descriptionIcon('heroicon-m-pencil-square')
                 ->color('info'),
 
             Stat::make('Project Tickets', $projectTickets)
-                ->description('Total tickets in your projects')
+                ->description(__('app.stat_total_tickets'))
                 ->descriptionIcon('heroicon-m-ticket')
                 ->color('success'),
 
             Stat::make('Completed This Week', $myCompletedThisWeek)
-                ->description('Your completed tickets')
+                ->description(__('app.stat_completed'))
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color($myCompletedThisWeek > 0 ? 'success' : 'gray'),
 
             Stat::make('New Tasks This Week', $newTicketsThisWeek)
-                ->description('Created in your projects')
+                ->description(__('app.stat_created_in_projects'))
                 ->descriptionIcon('heroicon-m-plus-circle')
                 ->color('info'),
 
             Stat::make('My Overdue Tasks', $myOverdueTickets)
-                ->description('Your past due tickets')
+                ->description(__('app.stat_past_due'))
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color($myOverdueTickets > 0 ? 'danger' : 'success'),
 
             Stat::make('Team Members', $teamMembers)
-                ->description('People in your projects')
+                ->description(__('app.stat_people'))
                 ->descriptionIcon('heroicon-m-users')
                 ->color('gray'),
         ];

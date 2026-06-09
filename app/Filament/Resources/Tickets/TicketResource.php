@@ -190,7 +190,7 @@ class TicketResource extends Resource
                     )
                     ->searchable()
                     ->preload()
-                    ->helperText('Select multiple users to assign this ticket to. Only project members can be assigned.')
+                    ->helperText(__('app.select_assignees_help'))
                     ->hidden(fn(Get $get): bool => !$get('project_id'))
                     ->live(),
 
@@ -288,7 +288,7 @@ class TicketResource extends Resource
                     ->default('—')
                     ->placeholder(__('app.no_epic')),
 
-                TextColumn::make('created_at')
+                TextColumn::make('created_at')->label(__('app.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -361,8 +361,8 @@ class TicketResource extends Resource
 
                 Filter::make('due_date')
                     ->schema([
-                        DatePicker::make('due_from'),
-                        DatePicker::make('due_until'),
+                        DatePicker::make('due_from')->label(__('app.due_from')),
+                        DatePicker::make('due_until')->label(__('app.due_until')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

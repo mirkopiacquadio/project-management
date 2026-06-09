@@ -25,8 +25,8 @@ class TicketCommentForm extends Component implements HasForms, HasActions
         return $schema
             ->schema([
                 RichEditor::make('newComment')
-                    ->label('Add a Comment')
-                    ->placeholder('Write your comment here...')
+                    ->label(__('app.add_comment'))
+                    ->placeholder(__('app.comment_placeholder'))
                     ->fileAttachmentsDisk('public')
                     ->fileAttachmentsDirectory('attachments')
                     ->fileAttachmentsVisibility('public')
@@ -51,7 +51,7 @@ class TicketCommentForm extends Component implements HasForms, HasActions
             ->update(['read_at' => now()]);
 
         Notification::make()
-            ->title('Comment added successfully')
+            ->title(__('app.comment_added'))
             ->success()
             ->send();
 

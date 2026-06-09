@@ -76,7 +76,7 @@ class CreateTicket extends CreateRecord
                     Notification::make()
                         ->warning()
                         ->title(__('app.some_assignees_removed'))
-                        ->body('Some selected users are not members of this project and have been removed from assignees.')
+                        ->body(__('app.non_member_removed_body'))
                         ->send();
                 }
                 
@@ -88,8 +88,8 @@ class CreateTicket extends CreateRecord
                         
                         Notification::make()
                             ->info()
-                            ->title('Auto-assigned')
-                            ->body('No valid assignees found. You have been automatically assigned to this ticket.')
+                            ->title(__('app.auto_assigned'))
+                            ->body(__('app.auto_assigned_body'))
                             ->send();
                     }
                 }
@@ -124,6 +124,6 @@ class CreateTicket extends CreateRecord
         return Notification::make()
             ->success()
             ->title(__('app.ticket_created'))
-            ->body('The ticket has been created successfully.');
+            ->body(__('app.ticket_created_body'));
     }
 }

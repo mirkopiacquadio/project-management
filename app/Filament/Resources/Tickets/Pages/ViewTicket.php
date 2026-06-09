@@ -91,7 +91,7 @@ class ViewTicket extends ViewRecord
         return Action::make('deleteComment')
             ->requiresConfirmation()
             ->modalHeading(__('app.delete_comment'))
-            ->modalDescription('Are you sure you want to delete this comment? This action cannot be undone.')
+            ->modalDescription(__('app.delete_comment_confirm'))
             ->modalSubmitActionLabel(__('app.delete_comment'))
             ->color('danger')
             ->icon('heroicon-o-trash')
@@ -164,7 +164,7 @@ class ViewTicket extends ViewRecord
     {
         return $schema
             ->schema([
-                Section::make('Ticket Information')
+                Section::make(__('app.ticket_information'))
                     ->icon('heroicon-o-ticket')
                     ->schema([
                         Grid::make(['default' => 1, 'md' => 2, 'lg' => 3])
@@ -185,7 +185,7 @@ class ViewTicket extends ViewRecord
                             ]),
                     ]),
 
-                Section::make('Status & Assignment')
+                Section::make(__('app.status_assignment'))
                     ->icon('heroicon-o-user-group')
                     ->schema([
                         Grid::make(['default' => 1, 'md' => 2, 'lg' => 4])
@@ -223,10 +223,10 @@ class ViewTicket extends ViewRecord
                             ]),
                     ]),
 
-                Section::make('Description')
+                Section::make(__('app.description'))
                     ->icon('heroicon-o-document-text')
                     ->schema([
-                        TextEntry::make('description')
+                        TextEntry::make('description')->label(__('app.description'))
                             ->hiddenLabel()
                             ->html()
                             ->prose()
@@ -238,9 +238,9 @@ class ViewTicket extends ViewRecord
                     ])
                     ->columnSpanFull(),
 
-                Section::make('Comments')
+                Section::make(__('app.comments_section'))
                     ->icon('heroicon-o-chat-bubble-left-right')
-                    ->description('Discussion about this ticket')
+                    ->description(__('app.ticket_discussion'))
                     ->schema([
                         TextEntry::make('comments_list')
                             ->hiddenLabel()
@@ -259,7 +259,7 @@ class ViewTicket extends ViewRecord
 
                 Grid::make(['default' => 1, 'lg' => 2])
                     ->schema([
-                        Section::make('Metadata')
+                        Section::make(__('app.metadata'))
                             ->icon('heroicon-o-information-circle')
                             ->collapsible()
                             ->collapsed()
@@ -282,7 +282,7 @@ class ViewTicket extends ViewRecord
                                     ->icon('heroicon-o-flag'),
                             ]),
 
-                        Section::make('Status History')
+                        Section::make(__('app.status_history'))
                             ->icon('heroicon-o-clock')
                             ->collapsible()
                             ->collapsed()

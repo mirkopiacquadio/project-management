@@ -25,8 +25,8 @@ class ImportTicketsAction
             ->icon('heroicon-m-arrow-up-tray')
             ->color('success')
             ->schema([
-                Section::make('Import Tickets from Excel')
-                    ->description('Select a project and upload an Excel file to import tickets. You can download the template below after selecting a project.')
+                Section::make(__('app.import_section'))
+                    ->description(__('app.import_select_project_desc'))
                     ->schema([
                         Select::make('project_id')
                             ->label(__('app.project'))
@@ -61,8 +61,8 @@ class ImportTicketsAction
                                     $projectId = $get('project_id');
                                     if (!$projectId) {
                                         Notification::make()
-                                            ->title('Error')
-                                            ->body('Please select a project first.')
+                                            ->title(__('app.error'))
+                                            ->body(__('app.select_project_first'))
                                             ->danger()
                                             ->send();
                                         return;
@@ -80,7 +80,7 @@ class ImportTicketsAction
                         
                         FileUpload::make('excel_file')
                             ->label(__('app.excel_file'))
-                            ->helperText('Upload the Excel file with ticket data. Make sure to use the template format above.')
+                            ->helperText(__('app.upload_excel_help'))
                             ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'])
                             ->maxSize(5120) // 5MB
                             ->required()

@@ -10,7 +10,10 @@ class UserStatisticsChart extends ChartWidget
 {
     use HasWidgetShield;
     
-    protected ?string $heading = 'User Statistics Chart';
+    public function getHeading(): ?string
+    {
+        return __('app.chart_user_stats');
+    }
     
     protected int | string | array $columnSpan = [
         'md' => 2,
