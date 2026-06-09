@@ -5,10 +5,10 @@
         <x-filament::section>
             <x-slot name="heading">
                 <div class="flex items-center justify-between w-full">
-                    <span>Timeline View</span>
+                    <span>{{ __('app.timeline_view') }}</span>
                     <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                         <x-heroicon-o-eye class="w-4 h-4" />
-                        <span>Read Only Mode</span>
+                        <span>{{ __('app.read_only_mode') }}</span>
                     </div>
                 </div>
             </x-slot>
@@ -29,8 +29,8 @@
                         <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
-                        <h3 class="text-lg font-medium">No project data available</h3>
-                        <p class="text-sm">Add start and end dates to projects to view timeline</p>
+                        <h3 class="text-lg font-medium">{{ __('app.no_project_data') }}</h3>
+                        <p class="text-sm">{{ __('app.add_dates_view_timeline') }}</p>
                     </div>
                 @endif
             </div>
@@ -39,25 +39,25 @@
         <!-- Legend -->
         <x-filament::section>
             <x-slot name="heading">
-                Status Legend
+                {{ __('app.status_legend') }}
             </x-slot>
             
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div class="flex items-center gap-2">
                     <div class="w-3 h-3 rounded" style="background-color: #3b82f6;"></div>
-                    <span class="text-sm text-gray-600 dark:text-gray-400">In Progress</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ __('app.in_progress') }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <div class="w-3 h-3 rounded" style="background-color: #10b981;"></div>
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Nearly Complete</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ __('app.nearly_complete') }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <div class="w-3 h-3 rounded" style="background-color: #f59e0b;"></div>
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Approaching Deadline</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ __('app.approaching_deadline') }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <div class="w-3 h-3 rounded" style="background-color: #ef4444;"></div>
-                    <span class="text-sm text-gray-600 dark:text-gray-400">Overdue</span>
+                    <span class="text-sm text-gray-600 dark:text-gray-400">{{ __('app.overdue') }}</span>
                 </div>
             </div>
         </x-filament::section>
@@ -183,8 +183,8 @@
                                 <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <h3 class="text-lg font-medium">Error loading timeline</h3>
-                                <p class="text-sm">Please refresh the page or contact support</p>
+                                <h3 class="text-lg font-medium">{{ __('app.error_loading_timeline') }}</h3>
+                                <p class="text-sm">{{ __('app.refresh_or_contact') }}</p>
                                 <p class="text-xs">Error: ${error.message}</p>
                             </div>
                         `;

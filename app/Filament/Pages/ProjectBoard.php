@@ -50,7 +50,7 @@ class ProjectBoard extends Page
 
     public function getSubheading(): ?string
     {
-        return 'Kanban board for ticket management';
+        return __('app.subheading_board');
     }
 
     protected static ?string $slug = 'project-board/{project_id?}';

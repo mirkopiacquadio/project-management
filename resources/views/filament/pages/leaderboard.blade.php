@@ -6,8 +6,8 @@
             <div class="fi-ta-actions flex shrink-0 items-center gap-3">
                 <x-filament::input.wrapper>
                     <x-filament::input.select wire:model.live="timeRange">
-                        <option value="7days">Last 7 Days</option>
-                        <option value="30days">Last 30 Days</option>
+                        <option value="7days">{{ __('app.last_7_days') }}</option>
+                        <option value="30days">{{ __('app.last_30_days') }}</option>
                     </x-filament::input.select>
                 </x-filament::input.wrapper>
             </div>
@@ -17,10 +17,10 @@
                 <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Show Top:</span>
                 <x-filament::input.wrapper>
                     <x-filament::input.select wire:model.live="topCount">
-                        <option value="5">Top 5</option>
-                        <option value="10">Top 10</option>
-                        <option value="20">Top 20</option>
-                        <option value="50">Top 50</option>
+                        <option value="5">{{ __('app.top_5') }}</option>
+                        <option value="10">{{ __('app.top_10') }}</option>
+                        <option value="20">{{ __('app.top_20') }}</option>
+                        <option value="50">{{ __('app.top_50') }}</option>
                     </x-filament::input.select>
                 </x-filament::input.wrapper>
             </div>
@@ -99,25 +99,25 @@
                                         <p class="text-lg font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['tickets_created']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Tickets</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('app.tickets') }}</p>
                                     </div>
                                     <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                         <p class="text-lg font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['status_changes']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Updates</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('app.updates') }}</p>
                                     </div>
                                     <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                         <p class="text-lg font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['comments_made']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Comments</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('app.comments') }}</p>
                                     </div>
                                     <div class="text-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                         <p class="text-lg font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['active_days']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Active Days</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('app.active_days') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -169,25 +169,25 @@
                                         <p class="text-xl font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['tickets_created']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Tickets</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('app.tickets') }}</p>
                                     </div>
                                     <div class="text-center">
                                         <p class="text-xl font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['status_changes']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Updates</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('app.updates') }}</p>
                                     </div>
                                     <div class="text-center">
                                         <p class="text-xl font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['comments_made']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Comments</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('app.comments') }}</p>
                                     </div>
                                     <div class="text-center">
                                         <p class="text-xl font-bold text-gray-900 dark:text-white">
                                             {{ number_format($entry['stats']['active_days']) }}
                                         </p>
-                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">Active Days</p>
+                                        <p class="text-xs text-gray-600 dark:text-gray-400 font-medium">{{ __('app.active_days') }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -196,8 +196,8 @@
                 @empty
                     <div class="text-center py-8">
                         <div class="text-gray-400 dark:text-gray-600 text-4xl mb-4">🏆</div>
-                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No Contributors Found</h3>
-                        <p class="text-gray-500 dark:text-gray-400">No user activity found for the selected time period.</p>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">{{ __('app.no_contributors') }}</h3>
+                        <p class="text-gray-500 dark:text-gray-400">{{ __('app.no_user_activity') }}</p>
                     </div>
                 @endforelse
             </div>
@@ -212,7 +212,7 @@
                             📊 Scoring System
                         </h3>
                         <p class="fi-section-header-description text-sm text-gray-500 dark:text-gray-400">
-                            How contribution scores are calculated
+                            {{ __('app.how_scores_calculated') }}
                         </p>
                     </div>
                 </div>

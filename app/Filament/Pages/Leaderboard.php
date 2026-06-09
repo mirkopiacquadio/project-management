@@ -46,7 +46,7 @@ class Leaderboard extends Page implements HasForms
 
     public function getSubheading(): ?string
     {
-        return 'Top contributors ranked by their overall activity and engagement';
+        return __('app.subheading_leaderboard');
     }
 
     public function setTimeRange(string $range): void

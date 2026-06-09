@@ -43,7 +43,7 @@ class TicketTimeline extends Page implements HasForms
 
     public function getSubheading(): ?string
     {
-        return 'View project tickets in Gantt chart timeline';
+        return __('app.subheading_timeline');
     }
     public ?string $projectId = null;
     public Collection $projects;

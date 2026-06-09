@@ -44,7 +44,7 @@ class UserContributions extends Page implements HasForms
 
     public function getSubheading(): ?string
     {
-        return 'Track daily activity and contributions across the team';
+        return __('app.subheading_contributions');
     }
     public Collection $users;
     public ?string $selectedUserId = null;

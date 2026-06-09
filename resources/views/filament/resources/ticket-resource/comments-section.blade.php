@@ -14,7 +14,7 @@
                 $videoUrl = $matches[1];
                 return '<video controls class="max-w-full rounded-lg my-2" style="max-height: 400px;">
                     <source src="' . $videoUrl . '" type="video/' . pathinfo($videoUrl, PATHINFO_EXTENSION) . '">
-                    Your browser does not support the video tag.
+                    {{ __('app.no_video_support') }}
                 </video>';
             }, $html);
         }

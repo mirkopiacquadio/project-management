@@ -9,10 +9,10 @@
             <x-filament::section>
                 <div class="mb-5">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        Select Project
+                        {{ __('app.select_project') }}
                     </h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Choose a project to view its epics
+                        {{ __('app.choose_project_epics') }}
                     </p>
                 </div>
 
@@ -27,7 +27,7 @@
                         <input
                             type="text"
                             wire:model.live.debounce.300ms="searchProject"
-                            placeholder="Search projects by name or prefix..."
+                            placeholder="{{ __('app.search_projects_placeholder') }}"
                             class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         />
                         @if($searchProject)
@@ -45,16 +45,16 @@
 
                 @if($availableProjects->isEmpty())
                     <div class="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
-                        <h3 class="text-base font-medium text-gray-900 dark:text-white mb-1">No Projects Available</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">You don't have access to any projects yet.</p>
+                        <h3 class="text-base font-medium text-gray-900 dark:text-white mb-1">{{ __('app.no_projects_available') }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('app.no_access_projects') }}</p>
                     </div>
                 @elseif($this->filteredProjects->isEmpty())
                     <div class="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
                         <svg class="w-12 h-12 mb-3 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
-                        <h3 class="text-base font-medium text-gray-900 dark:text-white mb-1">No Projects Found</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Try adjusting your search terms</p>
+                        <h3 class="text-base font-medium text-gray-900 dark:text-white mb-1">{{ __('app.no_projects_found') }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('app.try_adjust_search') }}</p>
                     </div>
                 @else
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -149,7 +149,7 @@
                 >
                     <div class="p-2">
                         <div class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Switch Project
+                            {{ __('app.switch_project') }}
                         </div>
                         @foreach($this->filteredProjects as $project)
                             <button
@@ -200,7 +200,7 @@
     @if($selectedProjectId && $epics->isNotEmpty())
         <x-filament::section>
             <x-slot name="heading">
-                Epics Overview
+                {{ __('app.epics_overview') }}
             </x-slot>
 
             <div class="w-full space-y-3">
@@ -219,10 +219,22 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-3">
                                 <div class="bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-gray-300 text-sm rounded-full px-3 py-1">
-                                    {{ $epic->tickets->count() }} tickets
+                                    {{ $epic->tickets->count() }} {{ __('app.tickets') }}
                                 </div>
+                                <button type="button"
+                                    wire:click.stop="mountAction('editEpic', { epic: {{ $epic->id }} })"
+                                    title="{{ __('app.edit') }}"
+                                    class="text-gray-400 hover:text-primary-500 focus:outline-none">
+                                    <x-heroicon-o-pencil-square class="h-5 w-5" />
+                                </button>
+                                <button type="button"
+                                    wire:click.stop="mountAction('deleteEpic', { epic: {{ $epic->id }} })"
+                                    title="{{ __('app.delete') }}"
+                                    class="text-gray-400 hover:text-danger-500 focus:outline-none">
+                                    <x-heroicon-o-trash class="h-5 w-5" />
+                                </button>
                                 <button class="text-gray-400 hover:text-primary-500 focus:outline-none">
                                     @if($this->isExpanded($epic->id))
                                         <x-heroicon-s-chevron-down class="h-5 w-5 text-primary-500 dark:text-primary-400" />
@@ -239,7 +251,7 @@
                                 <!-- Epic Description -->
                                 @if($epic->description)
                                     <div class="mb-4">
-                                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">Description</h4>
+                                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-300 mb-2">{{ __('app.description') }}</h4>
                                         <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-md text-sm text-gray-900 dark:text-gray-300">
                                             {!! $epic->description !!}
                                         </div>
@@ -249,16 +261,16 @@
                                 <!-- Tickets -->
                                 <div class="w-full">
                                     <div class="flex justify-between items-center mb-2">
-                                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-300">Tickets</h4>
+                                        <h4 class="text-sm font-medium text-gray-900 dark:text-gray-300">{{ __('app.tickets') }}</h4>
                                         <a href="{{ route('filament.admin.resources.tickets.create', ['epic_id' => $epic->id]) }}" class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300">
                                             <x-heroicon-s-plus class="w-4 h-4 inline-block mr-1" />
-                                            Add Ticket
+                                            {{ __('app.add_ticket') }}
                                         </a>
                                     </div>
 
                                     @if($epic->tickets->isEmpty())
                                         <div class="text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-4 rounded-md text-center border border-dashed border-gray-300 dark:border-gray-600 w-full">
-                                            No tickets found for this epic.
+                                            {{ __('app.no_tickets_for_epic') }}
                                         </div>
                                     @else
                                         <div class="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-md w-full">
@@ -266,12 +278,12 @@
                                                 <thead class="bg-gray-50 dark:bg-gray-700">
                                                     <tr>
                                                         <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
-                                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ticket</th>
-                                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">Assign To</th>
-                                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">Due Date</th>
+                                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('app.ticket') }}</th>
+                                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ __('app.status') }}</th>
+                                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">{{ __('app.assign_to_col') }}</th>
+                                                        <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden md:table-cell">{{ __('app.due_date') }}</th>
                                                         <th scope="col" class="relative px-3 py-2">
-                                                            <span class="sr-only">Actions</span>
+                                                            <span class="sr-only">{{ __('app.actions') }}</span>
                                                         </th>
                                                     </tr>
                                                 </thead>
@@ -299,7 +311,7 @@
                                                             <td class="px-3 py-2 text-xs text-gray-500 dark:text-gray-400 hidden sm:table-cell">
                                                                 @if($ticket->assignees->isEmpty())
                                                                     <x-filament::badge color="gray" icon="heroicon-m-user-minus">
-                                                                        Unassigned
+                                                                        {{ __('app.unassigned') }}
                                                                     </x-filament::badge>
                                                                 @else
                                                                     <div class="flex flex-wrap gap-1">
@@ -331,7 +343,7 @@
                                                             <td class="px-3 py-2 whitespace-nowrap text-right text-xs font-medium">
 
                                                                 <a href="{{ route('filament.admin.resources.tickets.view', ['record' => $ticket->id]) }}" target="_blank" class="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300">
-                                                                    View
+                                                                    {{ __('app.view') }}
                                                                 </a>
                                                             </td>
                                                         </tr>
@@ -353,10 +365,13 @@
             <div class="flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 p-6">
                 <x-heroicon-o-flag class="w-16 h-16 text-gray-400 dark:text-gray-500" />
             </div>
-            <h2 class="text-xl font-medium text-gray-600 dark:text-gray-300">No epics found in this project</h2>
+            <h2 class="text-xl font-medium text-gray-600 dark:text-gray-300">{{ __('app.no_epics_in_project') }}</h2>
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                This project doesn't have any epics yet. Create an epic to organize your tickets.
+                {{ __('app.no_epics_create_hint') }}
             </p>
+            <x-filament::button wire:click="mountAction('createEpic')" icon="heroicon-o-plus">
+                {{ __('app.create_epic') }}
+            </x-filament::button>
         </div>
     @endif
 </x-filament-panels::page>

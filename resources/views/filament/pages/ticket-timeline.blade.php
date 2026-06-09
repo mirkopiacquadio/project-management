@@ -6,10 +6,10 @@
                 <x-filament::section>
                     <div class="mb-5">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            Select Project
+                            {{ __('app.select_project') }}
                         </h2>
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            Choose a project to view its timeline
+                            {{ __('app.choose_project_timeline') }}
                         </p>
                     </div>
 
@@ -24,7 +24,7 @@
                                 </svg>
                             </div>
                             <input type="text" wire:model.live.debounce.300ms="searchProject"
-                                placeholder="Search projects by name or prefix..."
+                                placeholder="{{ __('app.search_projects_placeholder') }}"
                                 class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-primary-500 focus:border-transparent" />
                             @if($searchProject)
                                 <button wire:click="$set('searchProject', '')"
@@ -40,8 +40,8 @@
 
                     @if($projects->isEmpty())
                         <div class="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
-                            <h3 class="text-base font-medium text-gray-900 dark:text-white mb-1">No Projects Available</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">You don't have access to any projects yet.</p>
+                            <h3 class="text-base font-medium text-gray-900 dark:text-white mb-1">{{ __('app.no_projects_available') }}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('app.no_access_projects') }}</p>
                         </div>
                     @elseif($this->filteredProjects->isEmpty())
                         <div class="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
@@ -50,8 +50,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
-                            <h3 class="text-base font-medium text-gray-900 dark:text-white mb-1">No Projects Found</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Try adjusting your search terms</p>
+                            <h3 class="text-base font-medium text-gray-900 dark:text-white mb-1">{{ __('app.no_projects_found') }}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('app.try_adjust_search') }}</p>
                         </div>
                     @else
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -139,7 +139,7 @@
                         <div class="p-2">
                             <div
                                 class="px-3 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                Switch Project
+                                {{ __('app.switch_project') }}
                             </div>
                             @foreach($this->filteredProjects as $project)
                                 <button wire:click="selectProject({{ $project->id }})" @click="open = false"
@@ -193,7 +193,7 @@
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow">
                 <div class="p-4 border-b border-gray-200 dark:border-gray-700">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <h2 class="text-lg font-medium text-gray-900 dark:text-white">Ticket Timeline</h2>
+                        <h2 class="text-lg font-medium text-gray-900 dark:text-white">{{ __('app.ticket_timeline') }}</h2>
                         <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -201,7 +201,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
-                            <span>Read Only View</span>
+                            <span>{{ __('app.read_only_view') }}</span>
                         </div>
                     </div>
                 </div>
@@ -216,8 +216,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
                             </svg>
-                            <h3 class="text-lg font-medium">No tickets with due dates</h3>
-                            <p class="text-sm">Add due dates to tickets to see the timeline</p>
+                            <h3 class="text-lg font-medium">{{ __('app.no_tickets_due_dates') }}</h3>
+                            <p class="text-sm">{{ __('app.add_due_dates_hint') }}</p>
                         </div>
                     @endif
                 </div>
@@ -272,7 +272,7 @@
                         setTimeout(check, 100);
                     } else {
                         console.error('dhtmlxGantt failed to load after', maxAttempts * 100, 'ms');
-                        showErrorMessage('Failed to load Gantt library');
+                        showErrorMessage('{{ __('app.failed_load_gantt') }}');
                     }
                 }
                 check();
@@ -290,13 +290,13 @@
                         setTimeout(check, 100);
                     } else {
                         console.error('Gantt container not found or not visible after', maxAttempts * 100, 'ms');
-                        showErrorMessage('Gantt container not available');
+                        showErrorMessage('{{ __('app.gantt_unavailable') }}');
                     }
                 }
                 check();
             }
 
-            function showErrorMessage(message = 'Error loading timeline') {
+            function showErrorMessage(message = '{{ __('app.error_loading_timeline') }}') {
                 const container = document.getElementById('gantt_here');
                 if (container) {
                     container.innerHTML = `
@@ -305,9 +305,9 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <h3 class="text-lg font-medium">${message}</h3>
-                                <p class="text-sm">Please refresh the page or contact support</p>
+                                <p class="text-sm">{{ __('app.refresh_or_contact') }}</p>
                                 <button onclick="location.reload()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                                    Refresh Page
+                                    {{ __('app.refresh_page') }}
                                 </button>
                             </div>
                         `;

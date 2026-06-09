@@ -4,6 +4,10 @@ namespace App\Filament\Pages;
 
 use App\Models\Epic;
 use App\Models\Project;
+use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
@@ -35,7 +39,144 @@ class EpicsOverview extends Page
 
     public function getSubheading(): ?string
     {
-        return 'Manage and track project epics with their associated tickets and progress';
+        return __('app.subheading_epics');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('createEpic')
+                ->label(__('app.create_epic'))
+                ->icon('heroicon-o-plus')
+                ->visible(fn (): bool => $this->selectedProjectId !== null)
+                ->modalHeading(__('app.create_epic'))
+                ->schema($this->epicFormSchema())
+                ->action(fn (array $data) => $this->createEpic($data)),
+        ];
+    }
+
+    /**
+     * Form fields shared by the create and edit epic actions.
+     *
+     * @return array<int, mixed>
+     */
+    protected function epicFormSchema(): array
+    {
+        return [
+            TextInput::make('name')
+                ->label(__('app.name'))
+                ->required()
+                ->maxLength(255),
+            TextInput::make('sort_order')
+                ->label(__('app.sort_order'))
+                ->helperText(__('app.lower_numbers_first'))
+                ->numeric()
+                ->default(0),
+            DatePicker::make('start_date')
+                ->label(__('app.start_date'))
+                ->native(false)
+                ->displayFormat('d/m/Y'),
+            DatePicker::make('end_date')
+                ->label(__('app.end_date'))
+                ->native(false)
+                ->displayFormat('d/m/Y'),
+            RichEditor::make('description')
+                ->label(__('app.description'))
+                ->columnSpanFull(),
+        ];
+    }
+
+    public function createEpic(array $data): void
+    {
+        if (! $this->selectedProjectId) {
+            return;
+        }
+
+        Epic::create([
+            'project_id' => $this->selectedProjectId,
+            'name' => $data['name'],
+            'sort_order' => $data['sort_order'] ?? 0,
+            'start_date' => $data['start_date'] ?? null,
+            'end_date' => $data['end_date'] ?? null,
+            'description' => $data['description'] ?? null,
+        ]);
+
+        $this->loadEpics();
+        $this->expandedEpics = $this->epics->pluck('id')->toArray();
+
+        Notification::make()
+            ->title(__('app.epic_created'))
+            ->success()
+            ->send();
+    }
+
+    public function editEpicAction(): Action
+    {
+        return Action::make('editEpic')
+            ->label(__('app.edit'))
+            ->icon('heroicon-o-pencil-square')
+            ->modalHeading(__('app.edit_epic'))
+            ->fillForm(function (array $arguments): array {
+                $epic = Epic::find($arguments['epic'] ?? null);
+
+                if (! $epic) {
+                    return [];
+                }
+
+                return [
+                    'name' => $epic->name,
+                    'sort_order' => $epic->sort_order,
+                    'start_date' => $epic->start_date,
+                    'end_date' => $epic->end_date,
+                    'description' => $epic->description,
+                ];
+            })
+            ->schema($this->epicFormSchema())
+            ->action(function (array $arguments, array $data): void {
+                $epic = Epic::find($arguments['epic'] ?? null);
+
+                if (! $epic) {
+                    return;
+                }
+
+                $epic->update([
+                    'name' => $data['name'],
+                    'sort_order' => $data['sort_order'] ?? 0,
+                    'start_date' => $data['start_date'] ?? null,
+                    'end_date' => $data['end_date'] ?? null,
+                    'description' => $data['description'] ?? null,
+                ]);
+
+                $this->loadEpics();
+
+                Notification::make()
+                    ->title(__('app.epic_updated'))
+                    ->success()
+                    ->send();
+            });
+    }
+
+    public function deleteEpicAction(): Action
+    {
+        return Action::make('deleteEpic')
+            ->label(__('app.delete'))
+            ->icon('heroicon-o-trash')
+            ->color('danger')
+            ->requiresConfirmation()
+            ->modalHeading(__('app.delete_epic'))
+            ->modalDescription(__('app.delete_epic_confirm'))
+            ->action(function (array $arguments): void {
+                $epic = Epic::find($arguments['epic'] ?? null);
+                $epic?->delete();
+
+                $this->loadEpics();
+                $this->expandedEpics = $this->epics->pluck('id')->toArray();
+
+                Notification::make()
+                    ->title(__('app.epic_deleted'))
+                    ->success()
+                    ->send();
+            });
     }
 
     protected static ?string $slug = 'epics-overview/{project_id?}';
@@ -185,7 +326,7 @@ class EpicsOverview extends Page
     public function getTicketAssigneesDisplay($ticket): string
     {
         if ($ticket->assignees->isEmpty()) {
-            return 'Unassigned';
+            return __('app.unassigned');
         }
 
         $names = $ticket->assignees->pluck('name')->toArray();

@@ -4,7 +4,7 @@
             <!-- Header dengan Filter -->
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <x-filament::section.heading>
-                    Project Timeline
+                    {{ __('app.project_timeline') }}
                 </x-filament::section.heading>
                 
                 <!-- Filter Buttons -->
@@ -15,7 +15,7 @@
                         :outlined="$filter !== 'pinned'"
                         size="sm"
                     >
-                        Pinned Projects
+                        {{ __('app.pinned_projects') }}
                         <x-filament::badge
                             :color="$filter === 'pinned' ? 'primary' : 'gray'"
                             size="sm"
@@ -31,7 +31,7 @@
                         :outlined="$filter !== 'all'"
                         size="sm"
                     >
-                        All Projects
+                        {{ __('app.all_projects') }}
                         <x-filament::badge
                             :color="$filter === 'all' ? 'primary' : 'gray'"
                             size="sm"
@@ -141,7 +141,7 @@
                                             </div>
                                         @else
                                             <div class="font-medium text-amber-600 dark:text-amber-400">
-                                                Due today
+                                                {{ __('app.due_today') }}
                                             </div>
                                         @endif
                                     </div>
