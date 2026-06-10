@@ -118,9 +118,10 @@ class ProjectBoard extends Page
             $this->projectUsers = collect();
             $this->selectedUserIds = [];
 
-            // Use wire:navigate for SPA-like navigation
+            // Full page load (not Livewire.navigate): the board's drag&drop JS
+            // needs a fresh Livewire snapshot, otherwise the first drag fails.
             $url = static::getUrl();
-            $this->js("Livewire.navigate('{$url}')");
+            $this->js("window.location.href = '{$url}'");
         }
     }
 
@@ -135,9 +136,10 @@ class ProjectBoard extends Page
         if ($this->selectedProject) {
             $this->loadProjectUsers();
 
-            // Use wire:navigate for SPA-like navigation
+            // Full page load (not Livewire.navigate): the board's drag&drop JS
+            // needs a fresh Livewire snapshot, otherwise the first drag fails.
             $url = static::getUrl(['project_id' => $projectId]);
-            $this->js("Livewire.navigate('{$url}')");
+            $this->js("window.location.href = '{$url}'");
         }
     }
 

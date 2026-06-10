@@ -59,6 +59,12 @@ class User extends Authenticatable implements FilamentUser
             ->withTimestamps();
     }
 
+    public function sprints(): BelongsToMany
+    {
+        return $this->belongsToMany(Sprint::class, 'sprint_user')
+            ->withTimestamps();
+    }
+
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);

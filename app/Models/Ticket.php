@@ -24,6 +24,8 @@ class Ticket extends Model
         'uuid',
         'epic_id',
         'created_by',
+        'sprint_id',
+        'sprint_status_id',
     ];
 
     protected $casts = [
@@ -97,6 +99,16 @@ class Ticket extends Model
     public function priority(): BelongsTo
     {
         return $this->belongsTo(TicketPriority::class, 'priority_id');
+    }
+
+    public function sprint(): BelongsTo
+    {
+        return $this->belongsTo(Sprint::class);
+    }
+
+    public function sprintStatus(): BelongsTo
+    {
+        return $this->belongsTo(SprintStatus::class);
     }
 
     public function assignUser(User $user): void

@@ -27,6 +27,12 @@ class AdminPanelProvider extends PanelProvider
     {
         $panel = $panel
             ->spa()
+            // The Kanban board relies on heavy custom drag&drop JS whose Livewire
+            // snapshot isn't ready on the first SPA navigation ("Snapshot missing",
+            // first drag fails until a full refresh). Force a full page load for it.
+            ->spaUrlExceptions([
+                '*/admin/project-board*',
+            ])
             ->databaseTransactions()
             ->default()
             ->id('admin')

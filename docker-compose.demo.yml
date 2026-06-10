@@ -1,0 +1,105 @@
+# Istanza DEMO — stesso codice, database/porte/volumi separati.
+# Avvio:  docker compose -f docker-compose.demo.yml up -d
+# URL:    http://localhost:8001  (phpMyAdmin demo: http://localhost:8081)
+#
+# 'name' forza un progetto Docker SEPARATO da quello principale (che usa il
+# nome della cartella). Senza questo, i due stack si sovrascriverebbero.
+name: pmdemo
+#
+# Gli override di ambiente qui sotto hanno la precedenza sul file .env
+# (Laravel usa Dotenv "immutable": le variabili già presenti nell'ambiente
+# del container non vengono sovrascritte da .env). Così la demo punta al
+# database pm_demo senza toccare la configurazione principale.
+services:
+  app:
+    image: pmvvfsw-app:latest
+    container_name: laravel_app_demo
+    restart: unless-stopped
+    working_dir: /var/www
+    env_file: .env
+    environment:
+      APP_NAME: "PM Demo"
+      APP_ENV: local
+      APP_URL: http://localhost:8001
+      DB_HOST: db
+      DB_DATABASE: pm_demo
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
+    volumes:
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - laravel-demo
+
+  nginx:
+    image: nginx:alpine
+    container_name: laravel_nginx_demo
+    restart: unless-stopped
+    ports:
+      - "8001:80"
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - laravel-demo
+
+  db:
+    image: mysql:8.0
+    container_name: laravel_db_demo
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: pm_demo
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_PASSWORD: secret
+      MYSQL_USER: laravel
+    ports:
+      - "3308:3306"
+    volumes:
+      - laravel-data-demo:/var/lib/mysql
+    networks:
+      - laravel-demo
+
+  queue:
+    image: pmvvfsw-app:latest
+    container_name: laravel_queue_demo
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=90
+    env_file: .env
+    environment:
+      APP_NAME: "PM Demo"
+      APP_ENV: local
+      APP_URL: http://localhost:8001
+      DB_HOST: db
+      DB_DATABASE: pm_demo
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
+    volumes:
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    depends_on:
+      - app
+      - db
+    networks:
+      - laravel-demo
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: laravel_phpmyadmin_demo
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: secret
+    networks:
+      - laravel-demo
+
+networks:
+  laravel-demo:
+    driver: bridge
+
+volumes:
+  laravel-data-demo:
+    driver: local

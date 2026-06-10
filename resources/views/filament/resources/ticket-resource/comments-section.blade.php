@@ -14,7 +14,7 @@
                 $videoUrl = $matches[1];
                 return '<video controls class="max-w-full rounded-lg my-2" style="max-height: 400px;">
                     <source src="' . $videoUrl . '" type="video/' . pathinfo($videoUrl, PATHINFO_EXTENSION) . '">
-                    {{ __('app.no_video_support') }}
+                    ' . e(__('app.no_video_support')) . '
                 </video>';
             }, $html);
         }
@@ -91,7 +91,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <p class="text-sm">No comments yet. Be the first to comment!</p>
+            <p class="text-sm">{{ __('app.no_comments_yet') }}</p>
         </div>
     @endif
     @if($canComment)
