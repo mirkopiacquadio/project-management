@@ -40,4 +40,9 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('APP_URL') . '/auth/google/callback',
     ],
+
+    // Token statico per l'API consumata dal gestionale esterno (omnianextsrl).
+    'gestionale' => [
+        'token' => env('GESTIONALE_API_TOKEN'),
+    ],
 ];

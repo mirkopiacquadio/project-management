@@ -315,6 +315,67 @@ The application sends email notifications for:
 
 **Note:** Make sure the queue worker is always running to process email notifications. Without the queue worker, emails will not be sent.
 
+## API esterna — progetti (per il gestionale OmniaNext)
+
+Espone una piccola API REST **read-only** consumata dal gestionale esterno `omnianextsrl`
+per leggere l'elenco dei progetti. Autenticazione a **token statico** (no Sanctum).
+
+### Configurazione
+
+Imposta il token nel `.env` (header `Authorization: Bearer <token>`):
+
+```dotenv
+GESTIONALE_API_TOKEN=il-tuo-token-segreto
+```
+
+Letto da `config/services.php` (`services.gestionale.token`). Se il token non è configurato,
+l'API **nega ogni richiesta** (fail-closed). Dopo modifiche al `.env`:
+`docker exec laravel_app php artisan config:clear`.
+
+### Endpoint
+
+| Metodo | Path | Descrizione |
+|--------|------|-------------|
+| GET | `/api/projects` | Elenco progetti (paginato, 50/pagina) |
+| GET | `/api/projects/{id}` | Singolo progetto |
+
+Esempio:
+
+```bash
+curl -H "Authorization: Bearer <TOKEN>" http://localhost:8000/api/projects
+```
+
+Senza token o con token errato → `401`.
+
+### Contratto JSON
+
+```jsonc
+{
+  "data": [
+    {
+      "id": 3,
+      "name": "ALBERTO MOFFA",
+      "description": "<p></p>",
+      "ticket_prefix": "ALBERTO",
+      "color": null,
+      "start_date": null,        // Y-m-d o null
+      "end_date": null,
+      "is_pinned": false,
+      "members": [ { "id": 1, "name": "Mirko" } ]
+    }
+  ],
+  "links": { /* paginazione */ },
+  "meta":  { /* paginazione */ }
+}
+```
+
+> La tabella `projects` non ha colonne `status` o cliente/owner: i partecipanti sono i `members`
+> (utenti via `project_members`). Vengono esposti solo campi reali (vedi `app/Http/Resources/ProjectResource.php`).
+
+Componenti: `routes/api.php`, `app/Http/Controllers/Api/ProjectApiController.php`,
+`app/Http/Resources/ProjectResource.php`, `app/Http/Middleware/EnsureGestionaleToken.php`.
+Test: `tests/Feature/ProjectApiTest.php` (`docker exec laravel_app php artisan test --filter=ProjectApiTest`).
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
