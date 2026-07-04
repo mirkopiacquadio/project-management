@@ -2,28 +2,23 @@
 
 set -e
 
+STACK_ROOT=$(cd "$(dirname "$0")/../.." && pwd)
+APP_ROOT="$STACK_ROOT/app"
+
 echo "====================================="
 echo " PM-GEST UPDATE"
 echo "====================================="
 
-ROOT=$(cd "$(dirname "$0")/../.." && pwd)
-
-cd "$ROOT"
-
 echo ""
 echo "📥 Git Pull"
 
+cd "$APP_ROOT"
 git pull
-
-if [ ! -f docker-compose.yml ]; then
-    echo ""
-    echo "❌ docker-compose.yml mancante"
-    exit 1
-fi
 
 echo ""
 echo "🐳 Build"
 
+cd "$STACK_ROOT"
 docker compose build
 
 echo ""
