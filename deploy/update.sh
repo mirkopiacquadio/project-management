@@ -16,26 +16,56 @@ cd "$APP_ROOT"
 git pull
 
 echo ""
-echo "🐳 Build"
+echo "📄 Versione installata"
+
+git log -1 --oneline
+
+echo ""
+echo "🐳 Build immagini"
 
 cd "$STACK_ROOT"
 docker compose build
 
 echo ""
-echo "🚀 Update"
+echo "🚀 Aggiornamento stack"
 
-docker compose up -d
-
-echo ""
-echo "🧹 Pulizia"
-
-docker image prune -f
-docker builder prune -f
+docker compose up -d --remove-orphans
 
 echo ""
-echo "📋 Stato"
+echo "⏳ Attendo avvio servizi..."
+
+sleep 5
+
+echo ""
+echo "🗄️ Migrazioni database"
+
+docker compose exec -T app php artisan migrate --force
+
+echo ""
+echo "⚡ Ottimizzazione Laravel"
+
+docker compose exec -T app php artisan optimize
+
+echo ""
+echo "🔄 Riavvio Queue"
+
+docker compose exec -T app php artisan queue:restart
+
+echo ""
+echo "🧹 Pulizia Docker"
+
+docker image prune -af
+docker builder prune -af
+
+echo ""
+echo "💾 Utilizzo disco Docker"
+
+docker system df
+
+echo ""
+echo "📋 Stato servizi"
 
 docker compose ps
 
 echo ""
-echo "✅ Aggiornamento completato"
+echo "✅ Deploy completato con successo"
