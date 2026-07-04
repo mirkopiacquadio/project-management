@@ -12,7 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // dietro il reverse proxy (Nginx Proxy Manager) che termina l'SSL:
+        // fidati degli header X-Forwarded-* cosi lo schema https viene rilevato
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
