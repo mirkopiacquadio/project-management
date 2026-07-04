@@ -2,22 +2,29 @@ services:
 
   app:
     build:
-      context: .
+      context: ./app
       dockerfile: Dockerfile.app
+
     image: ${PROJECT_NAME}-app:latest
+
     container_name: ${PROJECT_NAME}-app
+
     restart: unless-stopped
+
     working_dir: /var/www
+
     env_file:
       - .env
+
     depends_on:
       - db
+
     networks:
       - app
 
   nginx:
     build:
-      context: .
+      context: ./app
       dockerfile: Dockerfile.nginx
 
     image: ${PROJECT_NAME}-nginx:latest
@@ -35,7 +42,9 @@ services:
 
   db:
     image: mysql:8.0
+
     container_name: ${PROJECT_NAME}-db
+
     restart: unless-stopped
 
     env_file:
@@ -55,7 +64,7 @@ services:
       - --collation-server=utf8mb4_unicode_ci
 
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: ["CMD","mysqladmin","ping","-h","localhost","-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -65,28 +74,39 @@ services:
 
   queue:
     build:
-      context: .
+      context: ./app
       dockerfile: Dockerfile.app
+
     image: ${PROJECT_NAME}-app:latest
+
     container_name: ${PROJECT_NAME}-queue
+
     restart: unless-stopped
+
     working_dir: /var/www
+
     entrypoint:
       - docker/queue.sh
+
     env_file:
       - .env
+
     depends_on:
-      - app
-      - db
+      db:
+        condition: service_healthy
+
     networks:
       - app
 
 networks:
+
   proxy:
     external: true
+
   app:
     name: ${PROJECT_NAME}-network
 
 volumes:
+
   db-data:
     name: ${PROJECT_NAME}-db-data

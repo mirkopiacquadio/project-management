@@ -1,4 +1,5 @@
 #!/bin/sh
+
 set -e
 
 until php artisan about >/dev/null 2>&1
