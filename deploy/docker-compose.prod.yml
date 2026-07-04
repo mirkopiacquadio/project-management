@@ -1,0 +1,113 @@
+services:
+
+  app:
+
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+
+    image: ${PROJECT_NAME}-app:latest
+
+    container_name: ${PROJECT_NAME}-app
+
+    restart: unless-stopped
+
+    working_dir: /var/www
+
+    env_file:
+      - .env
+
+    depends_on:
+      - db
+
+    networks:
+      - app
+
+  nginx:
+
+    image: nginx:alpine
+
+    container_name: ${PROJECT_NAME}-nginx
+
+    restart: unless-stopped
+
+    depends_on:
+      - app
+
+    volumes:
+      - ./app/nginx/conf.d:/etc/nginx/conf.d:ro
+
+    networks:
+      - proxy
+      - app
+
+  db:
+
+    image: mysql:8.0
+
+    container_name: ${PROJECT_NAME}-db
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+
+      MYSQL_USER: ${MYSQL_USER}
+
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+    volumes:
+      - db-data:/var/lib/mysql
+
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+    networks:
+      - app
+
+  queue:
+
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+
+    image: ${PROJECT_NAME}-app:latest
+
+    container_name: ${PROJECT_NAME}-queue
+
+    restart: unless-stopped
+
+    working_dir: /var/www
+
+    entrypoint:
+      - docker/queue.sh
+
+    env_file:
+      - .env
+
+    depends_on:
+      - app
+      - db
+
+    networks:
+      - app
+
+networks:
+
+  proxy:
+    external: true
+
+  app:
+    name: ${PROJECT_NAME}-network
+
+volumes:
+
+  db-data:
+    name: ${PROJECT_NAME}-db-data
