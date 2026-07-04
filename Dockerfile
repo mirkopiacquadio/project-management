@@ -1,33 +1,52 @@
+FROM composer:2 AS vendor
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader
+
+COPY . .
+
+RUN composer dump-autoload --optimize
+
+
 FROM php:8.3-fpm
 
-# Install dependencies
 RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    zip \
+    curl \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
     libicu-dev \
     libzip-dev \
-    zip \
-    unzip \
-    git \
-    curl
+    && docker-php-ext-install \
+        pdo_mysql \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        gd \
+        intl \
+        zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd intl zip
-
-# Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Set working directory
 WORKDIR /var/www
 
-# Copy existing application directory permissions
-COPY --chown=www-data:www-data . /var/www
+COPY --from=vendor /app /var/www
 
-# Expose port 9000 for PHP-FPM
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+RUN chown -R www-data:www-data /var/www
+
 EXPOSE 9000
 
 CMD ["php-fpm"]
