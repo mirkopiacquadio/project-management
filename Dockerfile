@@ -1,20 +1,7 @@
 # syntax=docker/dockerfile:1
 
-# ---------- Frontend assets ----------
-FROM node:22-alpine AS assets
-
-WORKDIR /app
-
-COPY package.json package-lock.json ./
-
-RUN npm ci
-
-COPY . .
-
-RUN npm run build
-
-# ---------- PHP application (app / queue) ----------
-FROM php:8.3-fpm AS app
+# ---------- PHP base + dipendenze composer ----------
+FROM php:8.3-fpm AS app-base
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
@@ -46,8 +33,6 @@ WORKDIR /var/www
 
 COPY . .
 
-COPY --from=assets /app/public/build ./public/build
-
 RUN chmod +x docker/*.sh
 
 RUN composer install \
@@ -56,8 +41,29 @@ RUN composer install \
     --no-interaction \
     --optimize-autoloader
 
-# storage symlink baked into the image so the nginx stage (which copies public/
-# from here) can serve /storage; target lives in the storage volume at runtime
+# ---------- Frontend assets ----------
+FROM node:22-alpine AS assets
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci
+
+COPY . .
+
+# il tema Filament importa CSS da vendor/, quindi serve durante il build Vite
+COPY --from=app-base /var/www/vendor ./vendor
+
+RUN npm run build
+
+# ---------- Applicazione (app / queue) ----------
+FROM app-base AS app
+
+COPY --from=assets /app/public/build ./public/build
+
+# storage symlink nell'immagine, cosi nginx (che copia public/ da qui) serve /storage;
+# il target vive nel volume storage a runtime
 RUN ln -sfn ../storage/app/public public/storage
 
 RUN chown -R www-data:www-data /var/www
@@ -71,8 +77,7 @@ FROM nginx:alpine AS nginx
 
 WORKDIR /var/www
 
-# public/ (compiled assets in public/build + the storage symlink) taken straight
-# from the app stage, so nginx and php-fpm always serve matching assets
+# public/ (asset compilati in public/build + symlink storage) preso dallo stage app
 COPY --from=app /var/www/public ./public
 
 COPY docker/nginx/conf.d/app.conf /etc/nginx/conf.d/default.conf
