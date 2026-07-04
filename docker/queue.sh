@@ -1,18 +1,11 @@
 #!/bin/sh
-
 set -e
 
-echo "🚀 Starting Queue..."
-
-if [ ! -d vendor ]; then
-    composer install \
-        --no-dev \
-        --no-interaction \
-        --prefer-dist \
-        --optimize-autoloader
-fi
-
-php artisan package:discover --ansi
+until php artisan about >/dev/null 2>&1
+do
+    echo "Waiting Laravel..."
+    sleep 2
+done
 
 exec php artisan queue:work \
     --sleep=3 \

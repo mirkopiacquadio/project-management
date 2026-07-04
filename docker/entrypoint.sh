@@ -1,22 +1,18 @@
 #!/bin/sh
-
 set -e
 
 echo "🚀 Starting Laravel..."
 
-if [ ! -d vendor ]; then
-    echo "📦 Installing Composer dependencies..."
-    composer install \
-        --no-dev \
-        --no-interaction \
-        --prefer-dist \
-        --optimize-autoloader
-fi
+composer install \
+    --no-dev \
+    --prefer-dist \
+    --no-interaction \
+    --optimize-autoloader
 
-php artisan package:discover --ansi
+php artisan key:generate --force || true
 
-php artisan config:cache
-php artisan route:cache
-#php artisan view:cache
+php artisan migrate --force
+
+php artisan optimize
 
 exec php-fpm

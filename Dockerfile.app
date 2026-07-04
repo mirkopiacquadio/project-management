@@ -1,5 +1,7 @@
 FROM php:8.3-fpm
 
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -27,6 +29,14 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 
 COPY . .
+
+RUN chmod +x docker/*.sh
+
+RUN composer install \
+    --no-dev \
+    --prefer-dist \
+    --no-interaction \
+    --optimize-autoloader
 
 RUN chown -R www-data:www-data /var/www
 
