@@ -6,9 +6,10 @@ echo "====================================="
 echo " PM-GEST INSTALL"
 echo "====================================="
 
-ROOT=$(cd "$(dirname "$0")/../.." && pwd)
+STACK_ROOT=$(cd "$(dirname "$0")/../.." && pwd)
+APP_ROOT="$STACK_ROOT/app"
 
-cd "$ROOT"
+cd "$STACK_ROOT"
 
 if [ ! -f .env ]; then
     echo ""
