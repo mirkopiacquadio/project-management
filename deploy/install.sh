@@ -17,6 +17,17 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
+if ! grep -q '^APP_KEY=base64:' .env; then
+    echo ""
+    echo "🔑 Genero APP_KEY"
+    KEY="base64:$(openssl rand -base64 32)"
+    if grep -q '^APP_KEY=' .env; then
+        sed -i "s|^APP_KEY=.*|APP_KEY=${KEY}|" .env
+    else
+        echo "APP_KEY=${KEY}" >> .env
+    fi
+fi
+
 if [ ! -f docker-compose.yml ]; then
     echo ""
     echo "📄 Creo docker-compose.yml"

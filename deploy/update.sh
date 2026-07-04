@@ -21,9 +21,14 @@ echo "📄 Versione installata"
 git log -1 --oneline
 
 echo ""
-echo "🐳 Build immagini"
+echo "📄 Sincronizzo docker-compose.yml"
 
 cd "$STACK_ROOT"
+cp "$APP_ROOT/deploy/docker-compose.prod.yml" docker-compose.yml
+
+echo ""
+echo "🐳 Build immagini"
+
 docker compose build
 
 echo ""

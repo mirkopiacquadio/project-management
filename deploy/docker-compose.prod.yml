@@ -3,7 +3,8 @@ services:
   app:
     build:
       context: ./app
-      dockerfile: Dockerfile.app
+      dockerfile: Dockerfile
+      target: app
 
     image: ${PROJECT_NAME}-app:latest
 
@@ -17,7 +18,11 @@ services:
       - .env
 
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+
+    volumes:
+      - storage:/var/www/storage
 
     networks:
       - app
@@ -25,7 +30,8 @@ services:
   nginx:
     build:
       context: ./app
-      dockerfile: Dockerfile.nginx
+      dockerfile: Dockerfile
+      target: nginx
 
     image: ${PROJECT_NAME}-nginx:latest
 
@@ -35,6 +41,9 @@ services:
 
     depends_on:
       - app
+
+    volumes:
+      - storage:/var/www/storage:ro
 
     networks:
       - proxy
@@ -75,7 +84,8 @@ services:
   queue:
     build:
       context: ./app
-      dockerfile: Dockerfile.app
+      dockerfile: Dockerfile
+      target: app
 
     image: ${PROJECT_NAME}-app:latest
 
@@ -95,6 +105,9 @@ services:
       db:
         condition: service_healthy
 
+    volumes:
+      - storage:/var/www/storage
+
     networks:
       - app
 
@@ -110,3 +123,6 @@ volumes:
 
   db-data:
     name: ${PROJECT_NAME}-db-data
+
+  storage:
+    name: ${PROJECT_NAME}-storage
