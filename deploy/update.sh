@@ -6,7 +6,7 @@ echo "====================================="
 echo " PM-GEST UPDATE"
 echo "====================================="
 
-ROOT=$(cd "$(dirname "$0")/.." && pwd)
+ROOT=$(cd "$(dirname "$0")/../.." && pwd)
 
 cd "$ROOT"
 
