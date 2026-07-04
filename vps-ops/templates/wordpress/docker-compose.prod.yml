@@ -1,0 +1,82 @@
+services:
+
+  wp:
+    image: wordpress:php8.3-apache
+
+    container_name: ${PROJECT_NAME}-wp
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      # dietro Nginx Proxy Manager l'SSL e terminato dal proxy: fai vedere a WP
+      # che la richiesta e https (evita redirect loop e mixed-content)
+      WORDPRESS_CONFIG_EXTRA: |
+        if (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+            $$_SERVER['HTTPS'] = 'on';
+        }
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    volumes:
+      - wp-data:/var/www/html
+
+    networks:
+      - proxy
+      - app
+
+  db:
+    image: mysql:8.0
+
+    container_name: ${PROJECT_NAME}-db
+
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+    volumes:
+      - db-data:/var/lib/mysql
+
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+    healthcheck:
+      test: ["CMD","mysqladmin","ping","-h","localhost","-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    networks:
+      - app
+
+networks:
+
+  proxy:
+    external: true
+
+  app:
+    name: ${PROJECT_NAME}-network
+
+volumes:
+
+  wp-data:
+    name: ${PROJECT_NAME}-wp-data
+
+  db-data:
+    name: ${PROJECT_NAME}-db-data
