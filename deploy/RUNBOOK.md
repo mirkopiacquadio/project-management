@@ -31,7 +31,11 @@ Proxy Host per `pm-gest.it` (tab **Details**):
 
 Tab **SSL**: *Request a new SSL Certificate* + ✅ Force SSL + ✅ HTTP/2 + accetta i ToS Let's Encrypt.
 
-**502 Bad Gateway** dopo il save → nel 99% dei casi: scheme messo su `https`, oppure forward-host errato (deve essere `pmvvf-nginx`). Verifica anche che sia NPM sia `pmvvf-nginx` siano sulla rete `proxy` (Portainer → container → *Connected Networks*).
+**502 Bad Gateway** — tre cause tipiche:
+
+1. **Su NPM**: scheme `https` invece di `http`, o forward-host errato (deve essere `pmvvf-nginx`), o NPM/`pmvvf-nginx` non entrambi sulla rete `proxy`.
+2. **IP upstream stale in nginx** (log nginx: `connect() failed (111: Connection refused) ... fastcgi://172.20.0.x:9000`): il container `app` è stato ricreato (deploy/restart) e ha un IP nuovo, ma nginx aveva cache-ato il vecchio. Fix immediato: `docker compose restart nginx`. Fix permanente già in `docker/nginx/conf.d/app.conf` (resolver Docker 127.0.0.11 + `fastcgi_pass $upstream_app:9000`) → attivo dal prossimo rebuild.
+3. **`app` down/in boot loop**: `docker compose logs --tail=50 app` → cerca l'errore dell'entrypoint.
 
 ---
 
