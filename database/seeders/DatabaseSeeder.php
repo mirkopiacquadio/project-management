@@ -13,12 +13,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Use plain create() (not the factory) so seeding does not depend on
+        // fakerphp/faker, which is a dev-only dependency absent in the
+        // production image (composer install --no-dev). The factory's
+        // definition() calls fake(), which would fatal during app:reset.
+        User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
+                'name' => 'Test User',
+                'password' => 'password', // hashed via the model cast
+                'email_verified_at' => now(),
+            ],
+        );
 
         // Jalankan RoleSeeder
         $this->call(RoleSeeder::class);
