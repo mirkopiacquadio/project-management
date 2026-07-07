@@ -138,6 +138,17 @@ docker compose exec app php artisan storage:link          # se manca il symlink 
 docker compose exec app chown -R www-data:www-data storage bootstrap/cache
 ```
 
+### 500 intermittenti e NON loggati in laravel.log → permessi storage
+
+Sintomo: dashboard che va in **500 a intermittenza** (alcune richieste 200), DB sano (`db:show` OK), e **nessun errore fresco in `storage/logs/laravel.log`** (l'ultima riga è vecchia). Causa: il volume `pmvvf-storage` montato su `/var/www/storage` è di proprietà di **root** (i comandi via `docker compose exec` e l'entrypoint girano come root e creano file root-owned nel volume, che maschera il `chown` di build). I worker php-fpm girano come **www-data** e non possono scrivere log/cache/sessioni → 500, e non riescono nemmeno a loggare l'errore. Fix:
+
+```bash
+docker compose exec app chown -R www-data:www-data storage bootstrap/cache
+docker compose restart app
+```
+
+Il fix permanente è nell'entrypoint (`docker/entrypoint.sh` fa il `chown` a ogni boot) → attivo dal prossimo rebuild.
+
 ---
 
 ## Checklist "sito non va"
