@@ -474,4 +474,7 @@ return [
     'sprint_creation_blocked' => 'Esiste già uno sprint aperto. Abilita "Consenti più sprint" nelle Impostazioni per crearne un altro.',
     'all_projects' => 'Tutti i progetti',
     'filter_tickets_by_project' => 'Facoltativo: filtra i ticket per progetto. Lascia vuoto per vedere tutti i ticket disponibili.',
+    'filters' => 'Filtri',
+    'apply_filters' => 'Applica filtri',
+    'reset_filters' => 'Azzera filtri',
 ];

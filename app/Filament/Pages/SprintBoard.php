@@ -6,6 +6,7 @@ use App\Filament\Resources\Tickets\TicketResource;
 use App\Models\Project;
 use App\Models\Sprint;
 use App\Models\Ticket;
+use App\Models\TicketPriority;
 use App\Models\TicketStatus;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
@@ -39,6 +40,10 @@ class SprintBoard extends Page
     public ?int $selectedSprintId = null;
 
     public array $selectedUserIds = [];
+
+    public array $selectedProjectIds = [];
+
+    public array $selectedPriorityIds = [];
 
     public Collection $sprintUsers;
 
@@ -140,6 +145,12 @@ class SprintBoard extends Page
                     'project:id,name,color,ticket_prefix',
                 ])
                 ->select('id', 'project_id', 'ticket_status_id', 'priority_id', 'sprint_id', 'name', 'description', 'uuid', 'due_date', 'created_at', 'updated_at', 'created_by')
+                ->when(! empty($this->selectedProjectIds), function ($query) {
+                    $query->whereIn('project_id', $this->selectedProjectIds);
+                })
+                ->when(! empty($this->selectedPriorityIds), function ($query) {
+                    $query->whereIn('priority_id', $this->selectedPriorityIds);
+                })
                 ->when(! empty($this->selectedUserIds), function ($query) {
                     $query->whereHas('assignees', function ($assigneeQuery) {
                         $assigneeQuery->whereIn('users.id', $this->selectedUserIds);
@@ -273,28 +284,83 @@ class SprintBoard extends Page
                 ->action('refreshBoard')
                 ->color('warning'),
 
-            Action::make('filter_users')
-                ->label(__('app.filter_by_user'))
-                ->icon('heroicon-m-user-group')
-                ->visible(fn () => $this->selectedSprint !== null && $this->sprintUsers->isNotEmpty())
+            Action::make('filters')
+                ->label(__('app.filters'))
+                ->icon('heroicon-m-funnel')
+                ->badge(fn (): ?int => $this->activeFilterCount() ?: null)
+                ->visible(fn () => $this->selectedSprint !== null)
                 ->schema([
+                    CheckboxList::make('selectedProjectIds')
+                        ->label(__('app.project'))
+                        ->options(fn () => $this->sprintProjectOptions())
+                        ->columns(2)
+                        ->searchable()
+                        ->bulkToggleable()
+                        ->visible(fn () => ! empty($this->sprintProjectOptions())),
+                    CheckboxList::make('selectedPriorityIds')
+                        ->label(__('app.priority'))
+                        ->options(fn () => TicketPriority::orderBy('id')->pluck('name', 'id')->toArray())
+                        ->columns(2)
+                        ->bulkToggleable(),
                     CheckboxList::make('selectedUserIds')
                         ->label(__('app.select_users_filter'))
                         ->options(fn () => $this->sprintUsers->pluck('name', 'id')->toArray())
                         ->columns(2)
                         ->searchable()
-                        ->bulkToggleable(),
+                        ->bulkToggleable()
+                        ->visible(fn () => $this->sprintUsers->isNotEmpty()),
                 ])
                 ->action(function (array $data) {
+                    $this->selectedProjectIds = $data['selectedProjectIds'] ?? [];
+                    $this->selectedPriorityIds = $data['selectedPriorityIds'] ?? [];
                     $this->selectedUserIds = $data['selectedUserIds'] ?? [];
                     $this->loadSprintStatuses();
                 })
-                ->fillForm([
+                ->fillForm(fn (): array => [
+                    'selectedProjectIds' => $this->selectedProjectIds,
+                    'selectedPriorityIds' => $this->selectedPriorityIds,
                     'selectedUserIds' => $this->selectedUserIds,
                 ])
-                ->modalWidth('md')
+                ->modalWidth('lg')
+                ->modalSubmitActionLabel(__('app.apply_filters'))
                 ->color('info'),
+
+            Action::make('reset_filters')
+                ->label(__('app.reset_filters'))
+                ->icon('heroicon-m-x-mark')
+                ->color('gray')
+                ->visible(fn () => $this->selectedSprint !== null && $this->activeFilterCount() > 0)
+                ->action(function () {
+                    $this->selectedProjectIds = [];
+                    $this->selectedPriorityIds = [];
+                    $this->selectedUserIds = [];
+                    $this->loadSprintStatuses();
+                }),
         ];
+    }
+
+    /** Number of active filter groups (for the button badge). */
+    protected function activeFilterCount(): int
+    {
+        return count($this->selectedProjectIds)
+            + count($this->selectedPriorityIds)
+            + count($this->selectedUserIds);
+    }
+
+    /** Projects that actually have tickets in the current sprint. */
+    protected function sprintProjectOptions(): array
+    {
+        if (! $this->selectedSprint) {
+            return [];
+        }
+
+        return Project::whereIn(
+            'id',
+            Ticket::where('sprint_id', $this->selectedSprint->id)->distinct()->pluck('project_id')
+        )
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->toArray();
     }
 
     public function showTicketDetails(int $ticketId): void

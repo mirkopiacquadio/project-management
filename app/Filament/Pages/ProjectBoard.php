@@ -7,6 +7,7 @@ use App\Filament\Actions\ExportTicketsAction;
 use App\Filament\Resources\Tickets\TicketResource;
 use App\Models\Project;
 use App\Models\Ticket;
+use App\Models\TicketPriority;
 use App\Models\TicketStatus;
 use App\Models\User;
 use Exception;
@@ -69,6 +70,8 @@ class ProjectBoard extends Page
     public array $sortOrders = [];
 
     public array $selectedUserIds = [];
+
+    public array $selectedPriorityIds = [];
 
     public Collection $projectUsers;
 
@@ -171,6 +174,9 @@ class ProjectBoard extends Page
                     'creator:id,name',
                 ])
                 ->select('id', 'project_id', 'ticket_status_id', 'priority_id', 'name', 'description', 'uuid', 'due_date', 'created_at', 'updated_at', 'created_by')
+                ->when(! empty($this->selectedPriorityIds), function ($query) {
+                    $query->whereIn('priority_id', $this->selectedPriorityIds);
+                })
                 ->when(! empty($this->selectedUserIds), function ($query) {
                     $query->whereHas('assignees', function ($assigneeQuery) {
                         $assigneeQuery->whereIn('users.id', $this->selectedUserIds);
@@ -388,43 +394,55 @@ class ProjectBoard extends Page
             ExportTicketsAction::make()
                 ->visible(fn () => $this->selectedProject !== null && auth()->user()->hasRole(['super_admin'])),
 
-            Action::make('filter_users')
-                ->label(__('app.filter_by_user'))
-                ->icon('heroicon-m-user-group')
-                ->visible(fn () => $this->selectedProject !== null && $this->projectUsers->isNotEmpty())
+            Action::make('filters')
+                ->label(__('app.filters'))
+                ->icon('heroicon-m-funnel')
+                ->badge(fn (): ?int => $this->activeFilterCount() ?: null)
+                ->visible(fn () => $this->selectedProject !== null)
                 ->schema([
+                    CheckboxList::make('selectedPriorityIds')
+                        ->label(__('app.priority'))
+                        ->options(fn () => TicketPriority::orderBy('id')->pluck('name', 'id')->toArray())
+                        ->columns(2)
+                        ->bulkToggleable(),
                     CheckboxList::make('selectedUserIds')
                         ->label(__('app.select_users_filter'))
                         ->options(fn () => $this->projectUsers->pluck('name', 'id')->toArray())
                         ->columns(2)
                         ->searchable()
-                        ->bulkToggleable(),
+                        ->bulkToggleable()
+                        ->visible(fn () => $this->projectUsers->isNotEmpty()),
                 ])
                 ->action(function (array $data) {
+                    $this->selectedPriorityIds = $data['selectedPriorityIds'] ?? [];
                     $this->selectedUserIds = $data['selectedUserIds'] ?? [];
                     $this->loadTicketStatuses();
-
-                    $userCount = count($this->selectedUserIds);
-                    if ($userCount > 0) {
-                        Notification::make()
-                            ->title(__('app.filter_applied'))
-                            ->body("Showing tickets for {$userCount} selected user(s)")
-                            ->success()
-                            ->send();
-                    } else {
-                        Notification::make()
-                            ->title(__('app.filter_cleared'))
-                            ->body(__('app.showing_all_tickets'))
-                            ->info()
-                            ->send();
-                    }
                 })
-                ->fillForm([
+                ->fillForm(fn (): array => [
+                    'selectedPriorityIds' => $this->selectedPriorityIds,
                     'selectedUserIds' => $this->selectedUserIds,
                 ])
-                ->modalWidth('md')
+                ->modalWidth('lg')
+                ->modalSubmitActionLabel(__('app.apply_filters'))
                 ->color('info'),
+
+            Action::make('reset_filters')
+                ->label(__('app.reset_filters'))
+                ->icon('heroicon-m-x-mark')
+                ->color('gray')
+                ->visible(fn () => $this->selectedProject !== null && $this->activeFilterCount() > 0)
+                ->action(function () {
+                    $this->selectedPriorityIds = [];
+                    $this->selectedUserIds = [];
+                    $this->loadTicketStatuses();
+                }),
         ];
+    }
+
+    /** Number of active filter selections (for the button badge). */
+    protected function activeFilterCount(): int
+    {
+        return count($this->selectedPriorityIds) + count($this->selectedUserIds);
     }
 
     private function canViewTicket(?Ticket $ticket): bool
