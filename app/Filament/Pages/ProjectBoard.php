@@ -7,6 +7,7 @@ use App\Filament\Actions\ExportTicketsAction;
 use App\Filament\Resources\Tickets\TicketResource;
 use App\Models\Project;
 use App\Models\Ticket;
+use App\Models\TicketStatus;
 use App\Models\User;
 use Exception;
 use Filament\Actions\Action;
@@ -150,32 +151,37 @@ class ProjectBoard extends Page
             return collect();
         }
 
-        $statuses = $this->selectedProject->ticketStatuses()
-            ->with([
-                'tickets' => function ($query) {
-                    $query->with([
-                        'assignees:id,name',
-                        'status:id,name,color,is_completed',
-                        'priority:id,name,color',
-                        'creator:id,name',
-                    ])
-                        ->select('id', 'project_id', 'ticket_status_id', 'priority_id', 'name', 'description', 'uuid', 'due_date', 'created_at', 'updated_at', 'created_by')
-                        ->when(! empty($this->selectedUserIds), function ($query) {
-                            $query->whereHas('assignees', function ($assigneeQuery) {
-                                $assigneeQuery->whereIn('users.id', $this->selectedUserIds);
-                            });
-                        })
-                        ->orderByDesc('created_at')
-                        ->orderByDesc('id');
-                },
-            ])
-            ->select('id', 'project_id', 'name', 'color', 'sort_order', 'is_completed')
+        // Board columns are the global statuses; each column shows this
+        // project's tickets that sit in that status.
+        $statuses = TicketStatus::query()->global()
+            ->select('id', 'name', 'color', 'sort_order', 'is_completed')
             ->orderBy('sort_order')
             ->get();
 
-        $statuses->each(function ($status) {
+        $projectId = $this->selectedProject->id;
+
+        $statuses->each(function ($status) use ($projectId) {
+            $tickets = Ticket::query()
+                ->where('project_id', $projectId)
+                ->where('ticket_status_id', $status->id)
+                ->with([
+                    'assignees:id,name',
+                    'status:id,name,color,is_completed',
+                    'priority:id,name,color',
+                    'creator:id,name',
+                ])
+                ->select('id', 'project_id', 'ticket_status_id', 'priority_id', 'name', 'description', 'uuid', 'due_date', 'created_at', 'updated_at', 'created_by')
+                ->when(! empty($this->selectedUserIds), function ($query) {
+                    $query->whereHas('assignees', function ($assigneeQuery) {
+                        $assigneeQuery->whereIn('users.id', $this->selectedUserIds);
+                    });
+                })
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
+                ->get();
+
             $sortOrder = $this->sortOrders[$status->id] ?? 'date_created_newest';
-            $status->tickets = $this->applySorting($status->tickets, $sortOrder);
+            $status->setRelation('tickets', $this->applySorting($tickets, $sortOrder));
         });
 
         return $statuses;
@@ -235,7 +241,7 @@ class ProjectBoard extends Page
                 return $tickets->values();
             case 'date_created_oldest':
                 return $tickets->sortBy(function ($ticket) {
-                    return $ticket->created_at->timestamp . '_' . str_pad($ticket->id, 10, '0', STR_PAD_LEFT);
+                    return $ticket->created_at->timestamp.'_'.str_pad($ticket->id, 10, '0', STR_PAD_LEFT);
                 })->values();
             case 'card_name_alphabetical':
                 return $tickets->sortBy('name')->values();

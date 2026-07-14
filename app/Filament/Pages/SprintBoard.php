@@ -6,6 +6,7 @@ use App\Filament\Resources\Tickets\TicketResource;
 use App\Models\Project;
 use App\Models\Sprint;
 use App\Models\Ticket;
+use App\Models\TicketStatus;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
@@ -70,6 +71,17 @@ class SprintBoard extends Page
 
         $this->sprintUsers = collect();
 
+        // Single-sprint mode: skip the picker and open the current sprint directly.
+        if (! $sprint_id && ! Sprint::allowsMultiple()) {
+            $primary = $this->sprints->first();
+
+            if ($primary) {
+                $this->redirect(static::getUrl(['sprint_id' => $primary->id]));
+
+                return;
+            }
+        }
+
         if ($sprint_id) {
             $this->selectedSprintId = (int) $sprint_id;
             $this->selectedSprint = $this->visibleSprintsQuery()->find($sprint_id);
@@ -109,26 +121,38 @@ class SprintBoard extends Page
             return collect();
         }
 
-        return $this->selectedSprint->statuses()
-            ->with([
-                'tickets' => function ($query) {
-                    $query->with([
-                        'assignees:id,name',
-                        'priority:id,name,color',
-                        'project:id,name,color,ticket_prefix',
-                    ])
-                        ->select('id', 'project_id', 'ticket_status_id', 'priority_id', 'sprint_id', 'sprint_status_id', 'name', 'description', 'uuid', 'due_date', 'created_at', 'updated_at', 'created_by')
-                        ->when(! empty($this->selectedUserIds), function ($query) {
-                            $query->whereHas('assignees', function ($assigneeQuery) {
-                                $assigneeQuery->whereIn('users.id', $this->selectedUserIds);
-                            });
-                        })
-                        ->orderByDesc('created_at')
-                        ->orderByDesc('id');
-                },
-            ])
+        // Sprint board columns are the same global statuses as the project
+        // board; a ticket has a single, shared status.
+        $statuses = TicketStatus::query()->global()
+            ->select('id', 'name', 'color', 'sort_order', 'is_completed')
             ->orderBy('sort_order')
             ->get();
+
+        $sprintId = $this->selectedSprint->id;
+
+        $statuses->each(function ($status) use ($sprintId) {
+            $tickets = Ticket::query()
+                ->where('sprint_id', $sprintId)
+                ->where('ticket_status_id', $status->id)
+                ->with([
+                    'assignees:id,name',
+                    'priority:id,name,color',
+                    'project:id,name,color,ticket_prefix',
+                ])
+                ->select('id', 'project_id', 'ticket_status_id', 'priority_id', 'sprint_id', 'name', 'description', 'uuid', 'due_date', 'created_at', 'updated_at', 'created_by')
+                ->when(! empty($this->selectedUserIds), function ($query) {
+                    $query->whereHas('assignees', function ($assigneeQuery) {
+                        $assigneeQuery->whereIn('users.id', $this->selectedUserIds);
+                    });
+                })
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
+                ->get();
+
+            $status->setRelation('tickets', $tickets);
+        });
+
+        return $statuses;
     }
 
     public function loadSprintStatuses(): void
@@ -168,14 +192,16 @@ class SprintBoard extends Page
                 return;
             }
 
-            $validStatus = $this->selectedSprint->statuses()->where('id', $newStatusId)->exists();
+            $validStatus = TicketStatus::query()->global()->whereKey($newStatusId)->exists();
 
             if (! $validStatus) {
                 return;
             }
 
+            // Statuses are shared: moving here updates the ticket's single
+            // status, so the project board reflects the change too.
             $ticket->update([
-                'sprint_status_id' => $newStatusId,
+                'ticket_status_id' => $newStatusId,
             ]);
 
             $this->loadSprintStatuses();
@@ -234,13 +260,12 @@ class SprintBoard extends Page
                         ->helperText(__('app.only_unassigned_sprint_tickets')),
                 ])
                 ->action(function (array $data) {
-                    $defaultStatusId = $this->selectedSprint->statuses()->orderBy('sort_order')->value('id');
-
+                    // Keep each ticket's current (shared) status; only attach it
+                    // to the sprint.
                     Ticket::whereIn('id', $data['ticket_ids'])
                         ->whereNull('sprint_id')
                         ->update([
                             'sprint_id' => $this->selectedSprint->id,
-                            'sprint_status_id' => $defaultStatusId,
                         ]);
 
                     $this->refreshBoard();

@@ -2,49 +2,42 @@
 
 namespace App\Filament\Resources\Projects;
 
-use Filament\Schemas\Schema;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\ColorPicker;
+use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\Projects\Pages\CreateProject;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
-use Filament\Tables\Columns\ColorColumn;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Resources\Projects\RelationManagers\TicketStatusesRelationManager;
-use App\Filament\Resources\Projects\RelationManagers\MembersRelationManager;
-use App\Filament\Resources\Projects\RelationManagers\EpicsRelationManager;
-use App\Filament\Resources\Projects\RelationManagers\TicketsRelationManager;
-use App\Filament\Resources\Projects\RelationManagers\NotesRelationManager;
+use App\Filament\Resources\Projects\Pages\EditProject;
 use App\Filament\Resources\Projects\Pages\ListProjects;
 use App\Filament\Resources\Projects\Pages\ViewProject;
-use App\Filament\Resources\Projects\Pages\EditProject;
-use App\Filament\Actions\ImportTicketsAction;
-use App\Filament\Resources\ProjectResource\Pages;
-use App\Filament\Resources\ProjectResource\RelationManagers;
+use App\Filament\Resources\Projects\RelationManagers\EpicsRelationManager;
+use App\Filament\Resources\Projects\RelationManagers\MembersRelationManager;
+use App\Filament\Resources\Projects\RelationManagers\NotesRelationManager;
+use App\Filament\Resources\Projects\RelationManagers\TicketsRelationManager;
 use App\Models\Project;
-use Filament\Forms;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\ColorColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
-use Filament\Actions\Action;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Project Management';
+
     protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): ?string
@@ -91,13 +84,6 @@ class ProjectResource extends Resource
                     ->native(false)
                     ->displayFormat('d/m/Y')
                     ->afterOrEqual('start_date'),
-                Toggle::make('create_default_statuses')
-                    ->label(__('app.use_default_statuses'))
-                    ->helperText(__('app.default_statuses_help'))
-                    ->default(true)
-                    ->dehydrated(false)
-                    ->visible(fn($livewire) => $livewire instanceof CreateProject),
-
                 Toggle::make('is_pinned')
                     ->label(__('app.pin_project'))
                     ->helperText(__('app.pin_project_help'))
@@ -111,13 +97,13 @@ class ProjectResource extends Resource
                     })
                     ->dehydrated(false)
                     ->afterStateHydrated(function ($component, $state, $get) {
-                        $component->state(!is_null($get('pinned_date')));
+                        $component->state(! is_null($get('pinned_date')));
                     }),
                 DateTimePicker::make('pinned_date')
                     ->label(__('app.pinned_date'))
                     ->native(false)
                     ->displayFormat('d/m/Y H:i')
-                    ->visible(fn($get) => $get('is_pinned'))
+                    ->visible(fn ($get) => $get('is_pinned'))
                     ->dehydrated(true),
             ]);
     }
@@ -137,12 +123,11 @@ class ProjectResource extends Resource
                 TextColumn::make('progress_percentage')
                     ->label(__('app.progress'))
                     ->getStateUsing(function (Project $record): string {
-                        return $record->progress_percentage . '%';
+                        return $record->progress_percentage.'%';
                     })
                     ->badge()
                     ->color(
-                        fn(Project $record): string =>
-                        $record->progress_percentage >= 100 ? 'success' :
+                        fn (Project $record): string => $record->progress_percentage >= 100 ? 'success' :
                         ($record->progress_percentage >= 75 ? 'info' :
                             ($record->progress_percentage >= 50 ? 'warning' :
                                 ($record->progress_percentage >= 25 ? 'gray' : 'danger')))
@@ -157,16 +142,15 @@ class ProjectResource extends Resource
                 TextColumn::make('remaining_days')
                     ->label(__('app.remaining_days'))
                     ->getStateUsing(function (Project $record): ?string {
-                        if (!$record->end_date) {
+                        if (! $record->end_date) {
                             return null;
                         }
 
-                        return $record->remaining_days . ' days';
+                        return $record->remaining_days.' days';
                     })
                     ->badge()
                     ->color(
-                        fn(Project $record): string =>
-                        !$record->end_date ? 'gray' :
+                        fn (Project $record): string => ! $record->end_date ? 'gray' :
                         ($record->remaining_days <= 0 ? 'danger' :
                             ($record->remaining_days <= 7 ? 'warning' : 'success'))
                     ),
@@ -179,6 +163,7 @@ class ProjectResource extends Resource
                         } else {
                             $record->unpin();
                         }
+
                         return $state;
                     }),
                 TextColumn::make('members_count')
@@ -198,7 +183,7 @@ class ProjectResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make()
+                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -210,7 +195,6 @@ class ProjectResource extends Resource
     public static function getRelations(): array
     {
         return [
-            TicketStatusesRelationManager::class,
             MembersRelationManager::class,
             EpicsRelationManager::class,
             TicketsRelationManager::class,
@@ -238,7 +222,7 @@ class ProjectResource extends Resource
             || (isset(auth()->user()->role) && auth()->user()->role === 'super_admin')
         );
 
-        if (!$userIsSuperAdmin) {
+        if (! $userIsSuperAdmin) {
             $query->whereHas('members', function (Builder $query) {
                 $query->where('user_id', auth()->id());
             });

@@ -82,12 +82,34 @@ class Sprint extends Model
         }
 
         $completedTickets = $this->tickets()
-            ->whereHas('sprintStatus', function ($query) {
+            ->whereHas('status', function ($query) {
                 $query->where('is_completed', true);
             })
             ->count();
 
         return round(($completedTickets / $totalTickets) * 100, 1);
+    }
+
+    /**
+     * Whether more than one open sprint may exist at a time. Controlled from
+     * System Settings; disabled by default (single-sprint mode).
+     */
+    public static function allowsMultiple(): bool
+    {
+        return filter_var(
+            Setting::getUserValue('allow_multiple_sprints', false),
+            FILTER_VALIDATE_BOOLEAN,
+        );
+    }
+
+    /**
+     * In single-sprint mode, creating another sprint is blocked while an open
+     * (planning or active) sprint already exists.
+     */
+    public static function creationBlocked(): bool
+    {
+        return ! static::allowsMultiple()
+            && static::whereIn('status', [self::STATUS_PLANNING, self::STATUS_ACTIVE])->exists();
     }
 
     public static function statusOptions(): array

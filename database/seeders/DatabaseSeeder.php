@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\TicketStatus;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -25,6 +26,9 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ],
         );
+
+        // Fixed, global board statuses shared by every project and sprint board.
+        TicketStatus::ensureGlobalDefaults();
 
         // Jalankan RoleSeeder
         $this->call(RoleSeeder::class);

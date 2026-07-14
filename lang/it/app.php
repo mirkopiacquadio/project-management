@@ -452,5 +452,24 @@ return [
     'tickets_added_to_sprint' => 'Ticket aggiunti allo sprint',
     'remove_from_sprint' => 'Rimuovi dallo Sprint',
     'ticket_removed_from_sprint' => 'Ticket rimosso dallo sprint',
-    'no_sprint_status_columns' => 'Nessuna colonna di stato definita per questo sprint. Aggiungi gli stati dalla scheda dello sprint.',
+    'no_sprint_status_columns' => 'Nessuna colonna di stato definita. Configura gli stati globali dalle Impostazioni.',
+
+    // Stati globali della bacheca (Impostazioni)
+    'board_statuses_section' => 'Stati bacheca',
+    'board_statuses_section_desc' => 'Stati fissi condivisi da tutte le bacheche (progetti e sprint). Modificali, riordinali o aggiungine di nuovi, poi premi "Salva stati bacheca".',
+    'completed_status' => 'Stato di completamento',
+    'completed_status_help' => 'I ticket in questo stato sono considerati completati.',
+    'add_status' => 'Aggiungi stato',
+    'save_board_statuses' => 'Salva stati bacheca',
+    'board_statuses_empty' => 'Deve esistere almeno uno stato.',
+    'board_statuses_saved' => 'Stati bacheca salvati.',
+
+    // Impostazioni sprint
+    'sprint_settings_section' => 'Sprint',
+    'sprint_settings_section_desc' => 'Configura il comportamento degli sprint.',
+    'allow_multiple_sprints' => 'Consenti più sprint contemporaneamente',
+    'allow_multiple_sprints_help' => 'Se disattivato, non è possibile creare un nuovo sprint mentre ne esiste uno aperto (in pianificazione o attivo). La bacheca sprint si apre direttamente sull\'unico sprint.',
+    'multiple_sprints_enabled' => 'Ora puoi creare più sprint contemporaneamente.',
+    'multiple_sprints_disabled' => 'Modalità sprint singolo attivata.',
+    'sprint_creation_blocked' => 'Esiste già uno sprint aperto. Abilita "Consenti più sprint" nelle Impostazioni per crearne un altro.',
 ];

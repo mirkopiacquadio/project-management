@@ -6,9 +6,9 @@ use App\Filament\Resources\Sprints\Pages\CreateSprint;
 use App\Filament\Resources\Sprints\Pages\EditSprint;
 use App\Filament\Resources\Sprints\Pages\ListSprints;
 use App\Filament\Resources\Sprints\Pages\ViewSprint;
-use App\Filament\Resources\Sprints\RelationManagers\SprintStatusesRelationManager;
 use App\Filament\Resources\Sprints\RelationManagers\TicketsRelationManager;
 use App\Models\Sprint;
+use App\Models\Ticket;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -18,7 +18,6 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -77,11 +76,24 @@ class SprintResource extends Resource
                     ->preload()
                     ->searchable()
                     ->helperText(__('app.sprint_members_help')),
-                Toggle::make('create_default_statuses')
-                    ->label(__('app.use_default_sprint_statuses'))
-                    ->helperText(__('app.default_sprint_statuses_help'))
-                    ->default(true)
+                Select::make('ticket_ids')
+                    ->label(__('app.add_tickets_to_sprint'))
+                    ->options(function () {
+                        $query = Ticket::query()->whereNull('sprint_id');
+
+                        if (! auth()->user()->hasRole('super_admin')) {
+                            $query->whereIn('project_id', auth()->user()->projects()->pluck('projects.id'));
+                        }
+
+                        return $query->orderBy('uuid')
+                            ->get()
+                            ->mapWithKeys(fn (Ticket $ticket) => [$ticket->id => "{$ticket->uuid} - {$ticket->name}"]);
+                    })
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
                     ->dehydrated(false)
+                    ->helperText(__('app.only_unassigned_sprint_tickets'))
                     ->visible(fn ($livewire) => $livewire instanceof CreateSprint),
             ]);
     }
@@ -104,7 +116,7 @@ class SprintResource extends Resource
                     }),
                 TextColumn::make('progress_percentage')
                     ->label(__('app.progress'))
-                    ->getStateUsing(fn (Sprint $record): string => $record->progress_percentage . '%')
+                    ->getStateUsing(fn (Sprint $record): string => $record->progress_percentage.'%')
                     ->badge()
                     ->color(
                         fn (Sprint $record): string => $record->progress_percentage >= 100 ? 'success' :
@@ -170,10 +182,15 @@ class SprintResource extends Resource
             ]);
     }
 
+    public static function canCreate(): bool
+    {
+        // Single-sprint mode: block creating another sprint while one is open.
+        return parent::canCreate() && ! Sprint::creationBlocked();
+    }
+
     public static function getRelations(): array
     {
         return [
-            SprintStatusesRelationManager::class,
             TicketsRelationManager::class,
         ];
     }

@@ -2,33 +2,42 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Setting;
+use App\Models\Sprint;
+use App\Models\Ticket;
+use App\Models\TicketStatus;
+use App\Services\SystemResetService;
+use App\Support\ColorPalette;
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
-use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use BackedEnum;
-use UnitEnum;
-use Filament\Support\Icons\Heroicon;
-use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
-use Filament\Actions\Action;
-use Filament\Forms\Components\TextInput;
-use App\Models\Setting;
-use App\Support\ColorPalette;
-use App\Services\SystemResetService;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
+use UnitEnum;
 
 class SystemSettings extends Page implements HasForms
 {
     use InteractsWithForms;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Cog6Tooth;
-    protected static string | UnitEnum | null $navigationGroup = 'Settings';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Settings';
+
     protected static ?string $title = null;
+
     protected string $view = 'filament.pages.system-settings';
 
     public static function getNavigationGroup(): ?string
@@ -44,6 +53,12 @@ class SystemSettings extends Page implements HasForms
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('saveBoardStatuses')
+                ->label(__('app.save_board_statuses'))
+                ->icon('heroicon-o-check')
+                ->visible(fn (): bool => (bool) auth()->user()?->hasRole('super_admin'))
+                ->action(fn () => $this->saveBoardStatuses()),
+
             Action::make('resetDatabase')
                 ->label(__('app.reset_database'))
                 ->icon('heroicon-o-arrow-path')
@@ -121,7 +136,22 @@ class SystemSettings extends Page implements HasForms
         $this->form->fill([
             'navigation_style' => Setting::getUserValue('filament_navigation_style', 'sidebar', $userId),
             'panel_color' => Setting::getUserValue('filament_primary_color', 'blue', $userId),
+            'allow_multiple_sprints' => Sprint::allowsMultiple(),
+            'board_statuses' => $this->boardStatusesFormState(),
         ]);
+    }
+
+    /** Map the global board statuses into the repeater's array shape. */
+    protected function boardStatusesFormState(): array
+    {
+        return TicketStatus::globalStatuses()
+            ->map(fn (TicketStatus $status) => [
+                'id' => $status->id,
+                'name' => $status->name,
+                'color' => $status->color,
+                'is_completed' => (bool) $status->is_completed,
+            ])
+            ->all();
     }
 
     public function form(Schema $schema): Schema
@@ -163,8 +193,136 @@ class SystemSettings extends Page implements HasForms
                                 $this->updateColorTheme($state);
                             }),
                     ]),
+
+                Section::make(__('app.board_statuses_section'))
+                    ->description(__('app.board_statuses_section_desc'))
+                    ->icon('heroicon-o-view-columns')
+                    ->visible(fn (): bool => (bool) auth()->user()?->hasRole('super_admin'))
+                    ->schema([
+                        Repeater::make('board_statuses')
+                            ->hiddenLabel()
+                            ->schema([
+                                Hidden::make('id'),
+                                TextInput::make('name')
+                                    ->label(__('app.name'))
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->columnSpan(2),
+                                ColorPicker::make('color')
+                                    ->label(__('app.color'))
+                                    ->required(),
+                                Toggle::make('is_completed')
+                                    ->label(__('app.completed_status'))
+                                    ->helperText(__('app.completed_status_help'))
+                                    ->inline(false),
+                            ])
+                            ->columns(4)
+                            ->reorderable()
+                            ->reorderableWithButtons()
+                            ->addActionLabel(__('app.add_status'))
+                            ->minItems(1),
+                    ]),
+
+                Section::make(__('app.sprint_settings_section'))
+                    ->description(__('app.sprint_settings_section_desc'))
+                    ->icon('heroicon-o-bolt')
+                    ->visible(fn (): bool => (bool) auth()->user()?->hasRole('super_admin'))
+                    ->schema([
+                        Toggle::make('allow_multiple_sprints')
+                            ->label(__('app.allow_multiple_sprints'))
+                            ->helperText(__('app.allow_multiple_sprints_help'))
+                            ->live()
+                            ->afterStateUpdated(function ($state) {
+                                $this->updateAllowMultipleSprints((bool) $state);
+                            }),
+                    ]),
             ])
             ->statePath('data');
+    }
+
+    protected function updateAllowMultipleSprints(bool $state): void
+    {
+        if (! auth()->user()?->hasRole('super_admin')) {
+            abort(403);
+        }
+
+        Setting::setValue('allow_multiple_sprints', $state ? '1' : '0', 'sprints');
+
+        Notification::make()
+            ->title(__('app.settings_saved_title'))
+            ->body($state ? __('app.multiple_sprints_enabled') : __('app.multiple_sprints_disabled'))
+            ->success()
+            ->send();
+    }
+
+    public function saveBoardStatuses(): void
+    {
+        if (! auth()->user()?->hasRole('super_admin')) {
+            abort(403);
+        }
+
+        $rows = array_values($this->data['board_statuses'] ?? []);
+
+        if (empty($rows)) {
+            Notification::make()
+                ->title(__('app.board_statuses_empty'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        // Upsert each row, keeping order from the repeater.
+        $keptIds = [];
+
+        foreach ($rows as $index => $row) {
+            $attributes = [
+                'name' => trim($row['name'] ?? ''),
+                'color' => $row['color'] ?? '#6B7280',
+                'is_completed' => (bool) ($row['is_completed'] ?? false),
+                'sort_order' => $index,
+                'project_id' => null,
+            ];
+
+            if ($attributes['name'] === '') {
+                continue;
+            }
+
+            $status = ! empty($row['id'])
+                ? TicketStatus::query()->global()->find($row['id'])
+                : null;
+
+            if ($status) {
+                $status->update($attributes);
+            } else {
+                $status = TicketStatus::create($attributes);
+            }
+
+            $keptIds[] = $status->id;
+        }
+
+        // Remove deleted statuses. Move any tickets that pointed at them to the
+        // first (default/Backlog) status so the FK cascade does not delete them.
+        $fallbackId = $keptIds[0] ?? null;
+
+        $removed = TicketStatus::query()->global()->whereNotIn('id', $keptIds)->get();
+
+        foreach ($removed as $status) {
+            if ($fallbackId) {
+                Ticket::where('ticket_status_id', $status->id)
+                    ->update(['ticket_status_id' => $fallbackId]);
+            }
+
+            $status->delete();
+        }
+
+        // Refresh the form so new ids/order are reflected.
+        $this->data['board_statuses'] = $this->boardStatusesFormState();
+
+        Notification::make()
+            ->title(__('app.board_statuses_saved'))
+            ->success()
+            ->send();
     }
 
     protected function updateNavigationStyle(string $style): void

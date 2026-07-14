@@ -39,9 +39,7 @@ class TicketsRelationManager extends RelationManager
                 TextColumn::make('project.name')->label(__('app.project'))
                     ->badge()
                     ->color('info'),
-                TextColumn::make('sprintStatus.name')->label(__('app.sprint_status'))
-                    ->badge(),
-                TextColumn::make('status.name')->label(__('app.project_status'))
+                TextColumn::make('status.name')->label(__('app.status'))
                     ->badge()
                     ->color('gray'),
                 TextColumn::make('assignees.name')->label(__('app.assignees'))
@@ -83,13 +81,13 @@ class TicketsRelationManager extends RelationManager
                     ])
                     ->action(function (array $data) {
                         $sprint = $this->getOwnerRecord();
-                        $defaultStatusId = $sprint->statuses()->orderBy('sort_order')->value('id');
 
+                        // Keep each ticket's current (shared) status; only
+                        // attach it to the sprint.
                         Ticket::whereIn('id', $data['ticket_ids'])
                             ->whereNull('sprint_id')
                             ->update([
                                 'sprint_id' => $sprint->id,
-                                'sprint_status_id' => $defaultStatusId,
                             ]);
 
                         Notification::make()
@@ -107,7 +105,6 @@ class TicketsRelationManager extends RelationManager
                     ->action(function (Ticket $record) {
                         $record->update([
                             'sprint_id' => null,
-                            'sprint_status_id' => null,
                         ]);
 
                         Notification::make()

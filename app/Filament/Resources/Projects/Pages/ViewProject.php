@@ -2,16 +2,15 @@
 
 namespace App\Filament\Resources\Projects\Pages;
 
-use Filament\Actions\EditAction;
-use Filament\Actions\Action;
 use App\Filament\Pages\ProjectBoard;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Grid;
 use App\Filament\Resources\Projects\ProjectResource;
-use Filament\Actions;
-use Filament\Resources\Pages\ViewRecord;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\FontWeight;
 
 class ViewProject extends ViewRecord
@@ -37,13 +36,13 @@ class ViewProject extends ViewRecord
                 ->modalContent(function () {
                     $record = $this->record;
                     $externalAccess = $record->externalAccess;
-                
-                    if (!$externalAccess) {
+
+                    if (! $externalAccess) {
                         $externalAccess = $record->generateExternalAccess();
                     }
-                
-                    $dashboardUrl = url('/external/' . $externalAccess->access_token);
-                
+
+                    $dashboardUrl = url('/external/'.$externalAccess->access_token);
+
                     return view('filament.components.external-access-modal', [
                         'dashboardUrl' => $dashboardUrl,
                         'password' => $externalAccess->password,
@@ -93,27 +92,27 @@ class ViewProject extends ViewRecord
                                 TextEntry::make('remaining_days')
                                     ->label(__('app.remaining_days'))
                                     ->getStateUsing(function ($record): ?string {
-                                        if (!$record->end_date) {
+                                        if (! $record->end_date) {
                                             return 'Not set';
                                         }
-                                        return $record->remaining_days . ' days';
+
+                                        return $record->remaining_days.' days';
                                     })
                                     ->badge()
-                                    ->color(fn ($record): string => 
-                                        !$record->end_date ? 'gray' :
-                                        ($record->remaining_days <= 0 ? 'danger' : 
+                                    ->color(fn ($record): string => ! $record->end_date ? 'gray' :
+                                        ($record->remaining_days <= 0 ? 'danger' :
                                         ($record->remaining_days <= 7 ? 'warning' : 'success'))
                                     ),
                                 TextEntry::make('pinned_date')
                                     ->label(__('app.pinned_status'))
                                     ->getStateUsing(function ($record): string {
-                                        return $record->pinned_date ? 'Pinned on ' . $record->pinned_date->format('d/m/Y H:i') : 'Not pinned';
+                                        return $record->pinned_date ? 'Pinned on '.$record->pinned_date->format('d/m/Y H:i') : 'Not pinned';
                                     })
                                     ->badge()
                                     ->color(fn ($record): string => $record->pinned_date ? 'success' : 'gray'),
                             ]),
                     ]),
-                
+
                 Section::make(__('app.project_statistics'))
                     ->schema([
                         Grid::make(4)
@@ -135,12 +134,12 @@ class ViewProject extends ViewRecord
                                     ->color('warning'),
                                 TextEntry::make('statuses_count')
                                     ->label(__('app.ticket_statuses'))
-                                    ->getStateUsing(fn ($record) => $record->ticketStatuses()->count())
+                                    ->getStateUsing(fn () => \App\Models\TicketStatus::query()->global()->count())
                                     ->badge()
                                     ->color('success'),
                             ]),
                     ]),
-                    
+
                 Section::make(__('app.timestamps'))
                     ->schema([
                         Grid::make(2)
