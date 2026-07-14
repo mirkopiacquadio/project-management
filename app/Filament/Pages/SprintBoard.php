@@ -232,6 +232,7 @@ class SprintBoard extends Page
                 ->schema([
                     Select::make('project_id')
                         ->label(__('app.project'))
+                        ->placeholder(__('app.all_projects'))
                         ->options(function () {
                             $query = auth()->user()->hasRole('super_admin')
                                 ? Project::query()
@@ -239,23 +240,13 @@ class SprintBoard extends Page
 
                             return $query->orderBy('name')->pluck('name', 'id');
                         })
-                        ->live()
-                        ->required(),
-                    Select::make('ticket_ids')
+                        ->helperText(__('app.filter_tickets_by_project'))
+                        ->live(),
+                    CheckboxList::make('ticket_ids')
                         ->label(__('app.select_tickets'))
-                        ->options(function ($get) {
-                            if (! $get('project_id')) {
-                                return [];
-                            }
-
-                            return Ticket::where('project_id', $get('project_id'))
-                                ->whereNull('sprint_id')
-                                ->orderBy('uuid')
-                                ->get()
-                                ->mapWithKeys(fn (Ticket $ticket) => [$ticket->id => "{$ticket->uuid} - {$ticket->name}"]);
-                        })
-                        ->multiple()
+                        ->options(fn ($get) => $this->unassignedTicketOptions($get('project_id')))
                         ->searchable()
+                        ->bulkToggleable()
                         ->required()
                         ->helperText(__('app.only_unassigned_sprint_tickets')),
                 ])
@@ -310,6 +301,37 @@ class SprintBoard extends Page
     {
         $url = TicketResource::getUrl('view', ['record' => $ticketId]);
         $this->js("window.open('{$url}', '_blank')");
+    }
+
+    /**
+     * Tickets not yet assigned to any sprint, across every project the user can
+     * see (optionally narrowed to one project). Used by the "Add tickets" modal
+     * so all available tickets can be added at once.
+     *
+     * @return array<int, string>
+     */
+    protected function unassignedTicketOptions($projectId = null): array
+    {
+        $query = Ticket::query()->whereNull('sprint_id');
+
+        if (! auth()->user()->hasRole('super_admin')) {
+            $query->whereIn('project_id', auth()->user()->projects()->pluck('projects.id'));
+        }
+
+        if ($projectId) {
+            $query->where('project_id', $projectId);
+        }
+
+        return $query->with('project:id,ticket_prefix')
+            ->orderBy('project_id')
+            ->orderBy('uuid')
+            ->get()
+            ->mapWithKeys(function (Ticket $ticket) {
+                $prefix = $ticket->project?->ticket_prefix ? $ticket->project->ticket_prefix.' · ' : '';
+
+                return [$ticket->id => "{$prefix}{$ticket->uuid} - {$ticket->name}"];
+            })
+            ->toArray();
     }
 
     private function canManageTicket(?Ticket $ticket): bool
