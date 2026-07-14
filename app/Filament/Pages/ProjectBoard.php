@@ -384,6 +384,11 @@ class ProjectBoard extends Page
                         ->body(__('app.ticket_created_body'))
                         ->success()
                         ->send();
+
+                    // Full page reload so the new card renders with working
+                    // drag&drop (fresh Livewire snapshot). The notification is
+                    // flashed to the session and shown after the redirect.
+                    $this->redirect(static::getUrl(['project_id' => $this->selectedProject->id]));
                 }),
 
             Action::make('refresh_board')

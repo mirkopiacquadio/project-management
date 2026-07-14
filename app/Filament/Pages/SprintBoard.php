@@ -257,13 +257,17 @@ class SprintBoard extends Page
 
                     $schema->model($record)->saveRelationships();
 
-                    $this->refreshBoard();
-
                     Notification::make()
                         ->title(__('app.ticket_created'))
                         ->body(__('app.ticket_created_body'))
                         ->success()
                         ->send();
+
+                    // Full page reload (not a partial re-render): the board's
+                    // drag&drop JS needs a fresh Livewire snapshot, otherwise the
+                    // newly rendered cards freeze. The notification above is
+                    // flashed to the session and shown after the redirect.
+                    $this->redirect(static::getUrl(['sprint_id' => $this->selectedSprint->id]));
                 }),
 
             Action::make('add_tickets')
@@ -300,12 +304,14 @@ class SprintBoard extends Page
                             'sprint_id' => $this->selectedSprint->id,
                         ]);
 
-                    $this->refreshBoard();
-
                     Notification::make()
                         ->title(__('app.tickets_added_to_sprint'))
                         ->success()
                         ->send();
+
+                    // Full page reload so the drag&drop stays functional on the
+                    // newly added cards (see note on new_ticket).
+                    $this->redirect(static::getUrl(['sprint_id' => $this->selectedSprint->id]));
                 }),
 
             Action::make('refresh_board')
