@@ -236,6 +236,36 @@ class SprintBoard extends Page
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('new_ticket')
+                ->label(__('app.ticket'))
+                ->icon('heroicon-m-plus')
+                ->visible(fn () => $this->selectedSprint !== null && auth()->user()->can('create_ticket'))
+                ->schema(fn ($schema) => TicketResource::form($schema)->columns(3))
+                ->model(Ticket::class)
+                ->fillForm(fn (): array => [
+                    'ticket_status_id' => TicketStatus::defaultStatus()?->id,
+                ])
+                ->action(function (array $data, $schema) {
+                    // New tickets created here belong to the current sprint and
+                    // keep the shared global status chosen in the form.
+                    $data['created_by'] = auth()->id();
+                    $data['sprint_id'] = $this->selectedSprint->id;
+
+                    $model = $schema->getModel();
+
+                    $record = $model::create($data);
+
+                    $schema->model($record)->saveRelationships();
+
+                    $this->refreshBoard();
+
+                    Notification::make()
+                        ->title(__('app.ticket_created'))
+                        ->body(__('app.ticket_created_body'))
+                        ->success()
+                        ->send();
+                }),
+
             Action::make('add_tickets')
                 ->label(__('app.add_tickets_to_sprint'))
                 ->icon('heroicon-m-plus')
