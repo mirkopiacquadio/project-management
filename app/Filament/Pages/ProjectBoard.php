@@ -416,7 +416,9 @@ class ProjectBoard extends Page
                 ->action(function (array $data) {
                     $this->selectedPriorityIds = $data['selectedPriorityIds'] ?? [];
                     $this->selectedUserIds = $data['selectedUserIds'] ?? [];
-                    $this->loadTicketStatuses();
+                    // refreshBoard() also re-emits the event that re-attaches the
+                    // drag&drop listeners to the newly rendered cards.
+                    $this->refreshBoard();
                 })
                 ->fillForm(fn (): array => [
                     'selectedPriorityIds' => $this->selectedPriorityIds,
@@ -434,7 +436,7 @@ class ProjectBoard extends Page
                 ->action(function () {
                     $this->selectedPriorityIds = [];
                     $this->selectedUserIds = [];
-                    $this->loadTicketStatuses();
+                    $this->refreshBoard();
                 }),
         ];
     }

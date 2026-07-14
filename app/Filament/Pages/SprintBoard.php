@@ -314,7 +314,9 @@ class SprintBoard extends Page
                     $this->selectedProjectIds = $data['selectedProjectIds'] ?? [];
                     $this->selectedPriorityIds = $data['selectedPriorityIds'] ?? [];
                     $this->selectedUserIds = $data['selectedUserIds'] ?? [];
-                    $this->loadSprintStatuses();
+                    // refreshBoard() also re-emits the event that re-attaches the
+                    // drag&drop listeners to the newly rendered cards.
+                    $this->refreshBoard();
                 })
                 ->fillForm(fn (): array => [
                     'selectedProjectIds' => $this->selectedProjectIds,
@@ -334,7 +336,7 @@ class SprintBoard extends Page
                     $this->selectedProjectIds = [];
                     $this->selectedPriorityIds = [];
                     $this->selectedUserIds = [];
-                    $this->loadSprintStatuses();
+                    $this->refreshBoard();
                 }),
         ];
     }
