@@ -22,7 +22,7 @@ services:
       - "8000:80"
     volumes:
       - ./:/var/www
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
     networks:
       - laravel-network
 
