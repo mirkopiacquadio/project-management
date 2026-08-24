@@ -91,58 +91,36 @@ git clone git@github.com:mirkopiacquadio/project-management.git app
 
 ## 3. Scrivi il `.env` dello stack
 
+> ⚠️ Il `.env` va nella **root dello stack** (`/opt/docker/stacks/omniaticket`), **non** in
+> `app/`: e' li' che sta `docker-compose.yml` e da li' viene letto come `env_file`.
+> Dopo il `git clone` ti ritrovi facilmente dentro `app/`, quindi il `cd` conta.
+>
+> ⚠️ Niente heredoc (`cat > .env <<EOF`): incollando da chat o da un browser le righe
+> arrivano rientrate, il terminatore `EOF` diventa `  EOF`, bash non lo riconosce e resta
+> appeso al prompt `>`. Il comando qui sotto e' **una riga sola**: gli spazi iniziali
+> non danno fastidio e non c'e' nessun terminatore da azzeccare.
+
+Incolla questo blocco (le prime due righe e la terza sono tre comandi distinti):
+
 ```bash
 cd /opt/docker/stacks/omniaticket
+```
 
-# Password DB generate al volo (le vedrai stampate: salvale nel password manager)
-DB_PASS=$(openssl rand -hex 20)
-DB_ROOT=$(openssl rand -hex 20)
+```bash
+DB_PASS=$(openssl rand -hex 20); DB_ROOT=$(openssl rand -hex 20); printf 'PROJECT_NAME=omniaticket\n\nAPP_NAME="Omnianext Ticket"\nAPP_ENV=production\nAPP_DEBUG=false\nAPP_KEY=\nAPP_URL=https://ticket.omnianextsrl.it\nAPP_LOCALE=it\nAPP_FALLBACK_LOCALE=it\n\nDB_CONNECTION=mysql\nDB_HOST=db\nDB_PORT=3306\nDB_DATABASE=omniaticket\nDB_USERNAME=omniaticket\nDB_PASSWORD=%s\n\nMYSQL_DATABASE=omniaticket\nMYSQL_USER=omniaticket\nMYSQL_PASSWORD=%s\nMYSQL_ROOT_PASSWORD=%s\n\nQUEUE_CONNECTION=database\nCACHE_STORE=database\nSESSION_DRIVER=database\n\nMAIL_MAILER=smtp\nMAIL_SCHEME=smtps\nMAIL_HOST=smtps.aruba.it\nMAIL_PORT=465\nMAIL_USERNAME=noreply@omnianextsrl.it\nMAIL_PASSWORD=CAMBIAMI\nMAIL_FROM_ADDRESS=noreply@omnianextsrl.it\nMAIL_FROM_NAME="Omnianext Ticket"\n' "$DB_PASS" "$DB_PASS" "$DB_ROOT" > .env; chmod 600 .env; echo "ROOT DB: $DB_ROOT"; echo "USER DB: $DB_PASS"
+```
 
-cat > .env <<EOF
-PROJECT_NAME=omniaticket
+Salva subito le due password stampate, poi metti quella vera della casella Aruba al posto
+di `CAMBIAMI`:
 
-APP_NAME="Omnianext Ticket"
-APP_ENV=production
-APP_DEBUG=false
-APP_KEY=
-APP_URL=https://ticket.omnianextsrl.it
-APP_LOCALE=it
-APP_FALLBACK_LOCALE=it
+```bash
+nano .env      # riga MAIL_PASSWORD=
+```
 
-DB_CONNECTION=mysql
-DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=omniaticket
-DB_USERNAME=omniaticket
-DB_PASSWORD=${DB_PASS}
+Controllo prima di proseguire (34 righe, **zero** righe che iniziano con uno spazio):
 
-MYSQL_DATABASE=omniaticket
-MYSQL_USER=omniaticket
-MYSQL_PASSWORD=${DB_PASS}
-MYSQL_ROOT_PASSWORD=${DB_ROOT}
-
-QUEUE_CONNECTION=database
-CACHE_STORE=database
-SESSION_DRIVER=database
-
-MAIL_MAILER=smtp
-MAIL_SCHEME=smtps
-MAIL_HOST=smtps.aruba.it
-MAIL_PORT=465
-MAIL_USERNAME=noreply@omnianextsrl.it
-MAIL_PASSWORD=METTI_QUI_LA_PASSWORD_ARUBA
-MAIL_FROM_ADDRESS=noreply@omnianextsrl.it
-MAIL_FROM_NAME="Omnianext Ticket"
-
-# GESTIONALE_API_TOKEN: volutamente ASSENTE (vedi "API gestionale" a fondo pagina)
-EOF
-
-# Metti la password vera della casella Aruba (usa un editor per non lasciarla nella history)
-nano .env
-
-chmod 600 .env
-echo "ROOT DB: $DB_ROOT"   # <- salvale ORA
-echo "USER DB: $DB_PASS"
+```bash
+wc -l .env; grep -c '^[[:space:]]' .env; head -1 .env
 ```
 
 > `APP_KEY` resta vuoto: lo genera `install.sh` al passo 4.
