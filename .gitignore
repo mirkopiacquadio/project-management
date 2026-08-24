@@ -33,4 +33,4 @@ frankenphp-worker.php
 /.claude
 
 # Dump di migrazione dati (contengono dati reali: non vanno su git)
-/deploy/seed/*.sql
+/deploy/seed/

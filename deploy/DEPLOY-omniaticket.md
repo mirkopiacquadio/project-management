@@ -89,38 +89,43 @@ git clone git@github.com:mirkopiacquadio/project-management.git app
 
 ---
 
-## 3. Scrivi il `.env` dello stack
+## 3. Il `.env` dello stack — generalo sul Mac e mandalo con `scp`
 
-> ⚠️ Il `.env` va nella **root dello stack** (`/opt/docker/stacks/omniaticket`), **non** in
+> ⚠️ **Non incollare il `.env` nel terminale SSH.** Sia l'heredoc (`cat > .env <<EOF`) sia
+> il comando su riga singola falliscono: incollando, il terminale rientra le righe (e
+> `  EOF` non chiude l'heredoc) oppure manda a capo le righe lunghe a meta' parola, e la
+> shell finisce per eseguire i frammenti — con la password DB interpretata come comando.
+> Il file va **generato in locale e trasferito**, come il dump.
+
+> ⚠️ Il `.env` sta nella **root dello stack** (`/opt/docker/stacks/omniaticket`), **non** in
 > `app/`: e' li' che sta `docker-compose.yml` e da li' viene letto come `env_file`.
-> Dopo il `git clone` ti ritrovi facilmente dentro `app/`, quindi il `cd` conta.
->
-> ⚠️ Niente heredoc (`cat > .env <<EOF`): incollando da chat o da un browser le righe
-> arrivano rientrate, il terminatore `EOF` diventa `  EOF`, bash non lo riconosce e resta
-> appeso al prompt `>`. Il comando qui sotto e' **una riga sola**: gli spazi iniziali
-> non danno fastidio e non c'e' nessun terminatore da azzeccare.
 
-Incolla questo blocco (le prime due righe e la terza sono tre comandi distinti):
+**Sul Mac** — genera il file con password casuali (una riga sola, ma qui la esegui in locale,
+non incollata via SSH):
 
 ```bash
+cd /Applications/XAMPP/xamppfiles/htdocs/PMVVFSW
+DB_PASS=$(openssl rand -hex 20); DB_ROOT=$(openssl rand -hex 20); printf 'PROJECT_NAME=omniaticket\n\nAPP_NAME="Omnianext Ticket"\nAPP_ENV=production\nAPP_DEBUG=false\nAPP_KEY=\nAPP_URL=https://ticket.omnianextsrl.it\nAPP_LOCALE=it\nAPP_FALLBACK_LOCALE=it\n\nDB_CONNECTION=mysql\nDB_HOST=db\nDB_PORT=3306\nDB_DATABASE=omniaticket\nDB_USERNAME=omniaticket\nDB_PASSWORD=%s\n\nMYSQL_DATABASE=omniaticket\nMYSQL_USER=omniaticket\nMYSQL_PASSWORD=%s\nMYSQL_ROOT_PASSWORD=%s\n\nQUEUE_CONNECTION=database\nCACHE_STORE=database\nSESSION_DRIVER=database\n\nMAIL_MAILER=smtp\nMAIL_SCHEME=smtps\nMAIL_HOST=smtps.aruba.it\nMAIL_PORT=465\nMAIL_USERNAME=noreply@omnianextsrl.it\nMAIL_PASSWORD=CAMBIAMI\nMAIL_FROM_ADDRESS=noreply@omnianextsrl.it\nMAIL_FROM_NAME="Omnianext Ticket"\n' "$DB_PASS" "$DB_PASS" "$DB_ROOT" > deploy/seed/omniaticket.env
+chmod 600 deploy/seed/omniaticket.env
+```
+
+Apri `deploy/seed/omniaticket.env` nell'editor e sostituisci `CAMBIAMI` con la password
+della casella `noreply@omnianextsrl.it`. Il file e' gitignorato (`/deploy/seed/`).
+
+**Trasferisci e verifica:**
+
+```bash
+scp deploy/seed/omniaticket.env root@5.249.150.209:/opt/docker/stacks/omniaticket/.env
+```
+
+```bash
+ssh root@5.249.150.209
 cd /opt/docker/stacks/omniaticket
-```
-
-```bash
-DB_PASS=$(openssl rand -hex 20); DB_ROOT=$(openssl rand -hex 20); printf 'PROJECT_NAME=omniaticket\n\nAPP_NAME="Omnianext Ticket"\nAPP_ENV=production\nAPP_DEBUG=false\nAPP_KEY=\nAPP_URL=https://ticket.omnianextsrl.it\nAPP_LOCALE=it\nAPP_FALLBACK_LOCALE=it\n\nDB_CONNECTION=mysql\nDB_HOST=db\nDB_PORT=3306\nDB_DATABASE=omniaticket\nDB_USERNAME=omniaticket\nDB_PASSWORD=%s\n\nMYSQL_DATABASE=omniaticket\nMYSQL_USER=omniaticket\nMYSQL_PASSWORD=%s\nMYSQL_ROOT_PASSWORD=%s\n\nQUEUE_CONNECTION=database\nCACHE_STORE=database\nSESSION_DRIVER=database\n\nMAIL_MAILER=smtp\nMAIL_SCHEME=smtps\nMAIL_HOST=smtps.aruba.it\nMAIL_PORT=465\nMAIL_USERNAME=noreply@omnianextsrl.it\nMAIL_PASSWORD=CAMBIAMI\nMAIL_FROM_ADDRESS=noreply@omnianextsrl.it\nMAIL_FROM_NAME="Omnianext Ticket"\n' "$DB_PASS" "$DB_PASS" "$DB_ROOT" > .env; chmod 600 .env; echo "ROOT DB: $DB_ROOT"; echo "USER DB: $DB_PASS"
-```
-
-Salva subito le due password stampate, poi metti quella vera della casella Aruba al posto
-di `CAMBIAMI`:
-
-```bash
-nano .env      # riga MAIL_PASSWORD=
-```
-
-Controllo prima di proseguire (34 righe, **zero** righe che iniziano con uno spazio):
-
-```bash
-wc -l .env; grep -c '^[[:space:]]' .env; head -1 .env
+chmod 600 .env
+rm -f app/.env                      # eventuale file finito nel posto sbagliato
+wc -l .env                          # deve dire 34
+grep -c '^[[:space:]]' .env         # deve dire 0
+grep -E 'PROJECT_NAME|MAIL_PASSWORD' .env
 ```
 
 > `APP_KEY` resta vuoto: lo genera `install.sh` al passo 4.
