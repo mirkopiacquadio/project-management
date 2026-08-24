@@ -263,6 +263,7 @@ return [
     'activity' => 'Attività',
     'today_only' => 'Solo oggi',
     'open_ticket' => 'Apri ticket',
+    'recent_activities' => 'Attività recenti',
     'no_activity_heading' => 'Nessuna attività trovata',
     'no_activity_desc' => 'Nessuna attività sui ticket nel periodo selezionato.',
 

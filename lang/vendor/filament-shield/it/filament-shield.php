@@ -8,10 +8,10 @@ return [
     */
 
     'column.name' => 'Nome',
-    'column.guard_name' => 'Nome Guard',
+    'column.guard_name' => 'Ambito',
     'column.roles' => 'Ruoli',
     'column.permissions' => 'Permessi',
-    'column.updated_at' => 'Aggiornato a',
+    'column.updated_at' => 'Aggiornato il',
 
     /*
     |--------------------------------------------------------------------------
@@ -20,7 +20,7 @@ return [
     */
 
     'field.name' => 'Nome',
-    'field.guard_name' => 'Nome Guard',
+    'field.guard_name' => 'Ambito',
     'field.permissions' => 'Permessi',
     'field.select_all.name' => 'Seleziona Tutto',
     'field.select_all.message' => 'Abilita tutti i Permessi attualmente <span class="text-primary font-medium">Abilitati</span> per questo ruolo',
@@ -31,7 +31,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'nav.group' => 'Filament Shield',
+    'nav.group' => 'Permessi e Ruoli',
     'nav.role.label' => 'Ruoli',
     'nav.role.icon' => 'heroicon-o-shield-check',
     'resource.label.role' => 'Ruolo',
@@ -43,10 +43,10 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'section' => 'Entities',
-    'resources' => 'Resources',
-    'widgets' => 'Widgets',
-    'pages' => 'Pages',
+    'section' => 'Entità',
+    'resources' => 'Risorse',
+    'widgets' => 'Riquadri',
+    'pages' => 'Pagine',
     'custom' => 'Permessi Personalizzati',
 
     /*
