@@ -31,7 +31,7 @@ fi
 if [ ! -f docker-compose.yml ]; then
     echo ""
     echo "📄 Creo docker-compose.yml"
-    cp deploy/docker-compose.prod.yml docker-compose.yml
+    cp "$APP_ROOT/deploy/docker-compose.prod.yml" docker-compose.yml
 fi
 
 echo ""
