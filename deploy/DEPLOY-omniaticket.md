@@ -105,12 +105,12 @@ non incollata via SSH):
 
 ```bash
 cd /Applications/XAMPP/xamppfiles/htdocs/PMVVFSW
-DB_PASS=$(openssl rand -hex 20); DB_ROOT=$(openssl rand -hex 20); printf 'PROJECT_NAME=omniaticket\n\nAPP_NAME="Omnianext Ticket"\nAPP_ENV=production\nAPP_DEBUG=false\nAPP_KEY=\nAPP_URL=https://ticket.omnianextsrl.it\nAPP_LOCALE=it\nAPP_FALLBACK_LOCALE=it\n\nDB_CONNECTION=mysql\nDB_HOST=db\nDB_PORT=3306\nDB_DATABASE=omniaticket\nDB_USERNAME=omniaticket\nDB_PASSWORD=%s\n\nMYSQL_DATABASE=omniaticket\nMYSQL_USER=omniaticket\nMYSQL_PASSWORD=%s\nMYSQL_ROOT_PASSWORD=%s\n\nQUEUE_CONNECTION=database\nCACHE_STORE=database\nSESSION_DRIVER=database\n\nMAIL_MAILER=smtp\nMAIL_SCHEME=smtps\nMAIL_HOST=smtps.aruba.it\nMAIL_PORT=465\nMAIL_USERNAME=noreply@omnianextsrl.it\nMAIL_PASSWORD=CAMBIAMI\nMAIL_FROM_ADDRESS=noreply@omnianextsrl.it\nMAIL_FROM_NAME="Omnianext Ticket"\n' "$DB_PASS" "$DB_PASS" "$DB_ROOT" > deploy/seed/omniaticket.env
+DB_PASS=$(openssl rand -hex 20); DB_ROOT=$(openssl rand -hex 20); printf 'PROJECT_NAME=omniaticket\n\nAPP_NAME="Omnianext Ticket"\nAPP_ENV=production\nAPP_DEBUG=false\nAPP_KEY=\nAPP_URL=https://ticket.omnianextsrl.it\nAPP_LOCALE=it\nAPP_FALLBACK_LOCALE=it\n\nDB_CONNECTION=mysql\nDB_HOST=db\nDB_PORT=3306\nDB_DATABASE=omniaticket\nDB_USERNAME=omniaticket\nDB_PASSWORD=%s\n\nMYSQL_DATABASE=omniaticket\nMYSQL_USER=omniaticket\nMYSQL_PASSWORD=%s\nMYSQL_ROOT_PASSWORD=%s\n\nQUEUE_CONNECTION=database\nCACHE_STORE=database\nSESSION_DRIVER=database\n\nMAIL_MAILER=smtp\nMAIL_SCHEME=smtps\nMAIL_HOST=smtps.aruba.it\nMAIL_PORT=465\nMAIL_USERNAME=info@omnianextsrl.it\nMAIL_PASSWORD=CAMBIAMI\nMAIL_FROM_ADDRESS=info@omnianextsrl.it\nMAIL_FROM_NAME="Omnianext Ticket"\n\nTICKET_EMAIL_NOTIFICATIONS=true\n' "$DB_PASS" "$DB_PASS" "$DB_ROOT" > deploy/seed/omniaticket.env
 chmod 600 deploy/seed/omniaticket.env
 ```
 
 Apri `deploy/seed/omniaticket.env` nell'editor e sostituisci `CAMBIAMI` con la password
-della casella `noreply@omnianextsrl.it`. Il file e' gitignorato (`/deploy/seed/`).
+della casella `info@omnianextsrl.it`. Il file e' gitignorato (`/deploy/seed/`).
 
 **Trasferisci e verifica:**
 
@@ -123,7 +123,7 @@ ssh root@5.249.150.209
 cd /opt/docker/stacks/omniaticket
 chmod 600 .env
 rm -f app/.env                      # eventuale file finito nel posto sbagliato
-wc -l .env                          # deve dire 34
+wc -l .env                          # deve dire 36
 grep -c '^[[:space:]]' .env         # deve dire 0
 grep -E 'PROJECT_NAME|MAIL_PASSWORD' .env
 ```
@@ -234,6 +234,41 @@ bash app/deploy/update.sh                  # pull + rebuild + migrate + optimize
 # dopo aver modificato .env serve --force-recreate (restart NON rilegge le variabili)
 docker compose up -d --force-recreate app queue
 ```
+
+### Notifiche email (solo questo stack)
+
+Le email automatiche sui ticket (apertura, commento, cambio di stato) sono **attive solo
+dove il `.env` lo dice**: su pmvvf/pm-gest restano spente. Su uno stack gia' in piedi:
+
+```bash
+cd /opt/docker/stacks/omniaticket
+
+# 1) casella Aruba + interruttore (se le righe MAIL_* ci sono gia', correggile invece di aggiungerle)
+nano .env
+#   MAIL_MAILER=smtp
+#   MAIL_SCHEME=smtps
+#   MAIL_HOST=smtps.aruba.it
+#   MAIL_PORT=465
+#   MAIL_USERNAME=info@omnianextsrl.it
+#   MAIL_PASSWORD=<password della casella>
+#   MAIL_FROM_ADDRESS=info@omnianextsrl.it     # Aruba rifiuta un mittente diverso dalla casella autenticata
+#   MAIL_FROM_NAME="Omnianext Ticket"
+#   TICKET_EMAIL_NOTIFICATIONS=true
+
+# 2) ricarica: un restart NON rilegge il .env
+docker compose up -d --force-recreate app queue
+docker compose exec app php artisan config:clear
+
+# 3) prova d'invio
+docker compose exec app php artisan tinker --execute="Mail::raw('prova', fn(\$m) => \$m->to('info@omnianextsrl.it')->subject('Test SMTP')); echo 'inviata';"
+```
+
+Se Aruba rifiuta con `535 Authentication failed`: password sbagliata, oppure la casella e'
+un alias e non una casella reale. Porta 465 richiede `MAIL_SCHEME=smtps`; in alternativa
+`MAIL_PORT=587` con `MAIL_SCHEME=smtp`.
+
+Il worker `queue` deve girare (le email sono accodate): `docker compose ps queue`.
+Dettagli e destinatari in `docs/NOTIFICHE-EMAIL.md`.
 
 ### ⚠️ Mai su questo stack
 

@@ -6,6 +6,7 @@ use App\Models\Setting;
 use App\Models\Sprint;
 use App\Models\Ticket;
 use App\Models\TicketStatus;
+use App\Services\NotificationService;
 use App\Services\SystemResetService;
 use App\Support\ColorPalette;
 use BackedEnum;
@@ -137,6 +138,7 @@ class SystemSettings extends Page implements HasForms
             'navigation_style' => Setting::getUserValue('filament_navigation_style', 'sidebar', $userId),
             'panel_color' => Setting::getUserValue('filament_primary_color', 'blue', $userId),
             'allow_multiple_sprints' => Sprint::allowsMultiple(),
+            'email_notifications_enabled' => app(NotificationService::class)->emailNotificationsEnabled(),
             'board_statuses' => $this->boardStatusesFormState(),
         ]);
     }
@@ -236,8 +238,37 @@ class SystemSettings extends Page implements HasForms
                                 $this->updateAllowMultipleSprints((bool) $state);
                             }),
                     ]),
+
+                Section::make(__('app.email_notifications_section'))
+                    ->description(__('app.email_notifications_section_desc'))
+                    ->icon('heroicon-o-envelope')
+                    ->visible(fn (): bool => (bool) auth()->user()?->hasRole('super_admin'))
+                    ->schema([
+                        Toggle::make('email_notifications_enabled')
+                            ->label(__('app.email_notifications_enabled'))
+                            ->helperText(__('app.email_notifications_enabled_help'))
+                            ->live()
+                            ->afterStateUpdated(function ($state) {
+                                $this->updateEmailNotifications((bool) $state);
+                            }),
+                    ]),
             ])
             ->statePath('data');
+    }
+
+    protected function updateEmailNotifications(bool $state): void
+    {
+        if (! auth()->user()?->hasRole('super_admin')) {
+            abort(403);
+        }
+
+        Setting::setValue('email_notifications_enabled', $state ? '1' : '0', 'notifications');
+
+        Notification::make()
+            ->title(__('app.settings_saved_title'))
+            ->body($state ? __('app.email_notifications_on') : __('app.email_notifications_off'))
+            ->success()
+            ->send();
     }
 
     protected function updateAllowMultipleSprints(bool $state): void

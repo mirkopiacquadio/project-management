@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\NotificationService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -50,6 +51,10 @@ class Ticket extends Model
             }
         });
 
+        static::created(function ($ticket) {
+            app(NotificationService::class)->notifyTicketCreated($ticket);
+        });
+
         static::updating(function ($ticket) {
             if ($ticket->isDirty('ticket_status_id')) {
                 TicketHistory::create([
@@ -58,6 +63,23 @@ class Ticket extends Model
                     'ticket_status_id' => $ticket->ticket_status_id,
                 ]);
             }
+        });
+
+        static::updated(function ($ticket) {
+            if (! $ticket->wasChanged('ticket_status_id')) {
+                return;
+            }
+
+            // Rilettura diretta: la relazione "status" potrebbe essere ancora quella caricata prima del salvataggio.
+            $oldStatus = TicketStatus::find($ticket->getOriginal('ticket_status_id'));
+            $newStatus = TicketStatus::find($ticket->ticket_status_id);
+
+            app(NotificationService::class)->notifyTicketStatusChanged(
+                $ticket,
+                $oldStatus?->name,
+                $newStatus?->name,
+                auth()->user(),
+            );
         });
     }
 
@@ -129,5 +151,17 @@ class Ticket extends Model
     public function isAssignedTo(User $user): bool
     {
         return $this->assignees()->where('user_id', $user->id)->exists();
+    }
+
+    /**
+     * URL della pagina di dettaglio nel pannello admin (usato nelle email).
+     */
+    public function adminUrl(): ?string
+    {
+        try {
+            return route('filament.admin.resources.tickets.view', ['record' => $this->getKey()]);
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 }
